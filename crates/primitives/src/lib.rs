@@ -25,7 +25,10 @@ mod error;
 pub mod fs;
 pub mod genesis;
 mod header;
+
+#[cfg(feature = "use-sucds")]
 mod integer_list;
+
 mod log;
 mod net;
 mod peer;
@@ -61,7 +64,10 @@ pub use constants::{
 pub use error::{GotExpected, GotExpectedBoxed};
 pub use genesis::{ChainConfig, Genesis, GenesisAccount};
 pub use header::{Header, HeaderValidationError, HeadersDirection, SealedHeader};
+
+#[cfg(feature = "use-sucds")]
 pub use integer_list::IntegerList;
+
 pub use log::{logs_bloom, Log};
 pub use net::{
     goerli_nodes, holesky_nodes, mainnet_nodes, parse_nodes, sepolia_nodes, NodeRecord,

@@ -2312,6 +2312,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "11157ac094ffbdde99aa67b23417ebdd801842852b500e395a45a9c0aac03e4a"
 
 [[package]]
+name = "elias-fano"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fd4d0f343ec564400ddb78a4d64ab7dd3617114cf4586efec034b70fda8b4045"
+dependencies = [
+ "fixedbitset",
+]
+
+[[package]]
 name = "elliptic-curve"
 version = "0.13.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2825,6 +2834,12 @@ dependencies = [
  "rustc-hex",
  "static_assertions",
 ]
+
+[[package]]
+name = "fixedbitset"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "86d4de0081402f5e88cdac65c8dcdcc73118c1a7a465e2a05f0da05843a8ea33"
 
 [[package]]
 name = "flate2"
@@ -6570,6 +6585,7 @@ dependencies = [
  "clap",
  "criterion",
  "derive_more",
+ "elias-fano",
  "ethers-core",
  "hash-db",
  "itertools 0.12.1",
