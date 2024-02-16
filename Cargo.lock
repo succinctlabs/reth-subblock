@@ -6589,6 +6589,7 @@ dependencies = [
  "ethers-core",
  "hash-db",
  "itertools 0.12.1",
+ "k256",
  "modular-bitfield",
  "num_enum 0.7.2",
  "nybbles",

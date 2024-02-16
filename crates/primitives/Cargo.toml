@@ -28,8 +28,9 @@ ethers-core = { workspace = true, default-features = false, optional = true }
 nybbles = { version = "0.1.2", features = ["serde", "rlp"] }
 alloy-genesis.workspace = true
 alloy-eips.workspace = true
+
 # crypto
-secp256k1 = { workspace = true, features = ["global-context", "recovery"] }
+secp256k1 = { workspace = true, features = ["global-context", "recovery"], optional = true }
 
 # for eip-4844
 c-kzg = { workspace = true, features = ["serde"], optional = true }
@@ -67,6 +68,7 @@ arbitrary = { workspace = true, features = ["derive"], optional = true }
 proptest = { workspace = true, optional = true }
 proptest-derive = { workspace = true, optional = true }
 strum = { workspace = true, features = ["derive"] }
+k256 = { version = "0.13.3", features = ["ecdsa"] }
 
 [dev-dependencies]
 arbitrary = { workspace = true, features = ["derive"] }
@@ -92,8 +94,9 @@ pprof = { workspace = true, features = ["flamegraph", "frame-pointer", "criterio
 secp256k1.workspace = true
 
 [features]
-default = ["c-kzg", "use-sucds"]
+default = ["c-kzg", "use-sucds", "secp256k1"]
 asm-keccak = ["alloy-primitives/asm-keccak"]
+secp256k1 = ["dep:secp256k1"]
 arbitrary = [
     "revm-primitives/arbitrary",
     "reth-rpc-types/arbitrary",
