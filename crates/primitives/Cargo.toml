@@ -56,7 +56,7 @@ sucds = { version = "~0.6", optional = true }
 elias-fano = "1.1.0"
 tempfile.workspace = true
 thiserror.workspace = true
-zstd = { version = "0.12", features = ["experimental"] }
+zstd = { version = "0.12", features = ["experimental"], optional = true }
 cfg-if = "1.0.0"
 
 # `test-utils` feature
@@ -117,7 +117,7 @@ optimism = [
     "revm/optimism",
 ]
 test-utils = ["dep:plain_hasher", "dep:hash-db", "dep:ethers-core"]
-use-sucds = ["sucds"]
+use-sucds = ["sucds", "zstd"]
 
 [[bench]]
 name = "recover_ecdsa_crit"

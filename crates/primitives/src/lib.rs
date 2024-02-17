@@ -18,7 +18,10 @@ mod account;
 pub mod basefee;
 mod block;
 mod chain;
+
+#[cfg(feature = "use-sucds")]
 mod compression;
+
 pub mod constants;
 pub mod eip4844;
 mod error;
@@ -56,7 +59,10 @@ pub use chain::{
     ChainSpecBuilder, DisplayHardforks, ForkBaseFeeParams, ForkCondition, ForkTimestamps,
     NamedChain, DEV, GOERLI, HOLESKY, MAINNET, SEPOLIA,
 };
+
+#[cfg(feature = "use-sucds")]
 pub use compression::*;
+
 pub use constants::{
     DEV_GENESIS_HASH, EMPTY_OMMER_ROOT_HASH, GOERLI_GENESIS_HASH, HOLESKY_GENESIS_HASH,
     KECCAK_EMPTY, MAINNET_GENESIS_HASH, SEPOLIA_GENESIS_HASH,
