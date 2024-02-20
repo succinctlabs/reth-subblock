@@ -68,6 +68,8 @@ proptest = { workspace = true, optional = true }
 proptest-derive = { workspace = true, optional = true }
 strum = { workspace = true, features = ["derive"] }
 
+sp1-precompiles = { git = "https://github.com/succinctlabs/sp1.git" }
+
 [dev-dependencies]
 arbitrary = { workspace = true, features = ["derive"] }
 assert_matches.workspace = true
@@ -90,6 +92,7 @@ plain_hasher = "0.2"
 criterion.workspace = true
 pprof = { workspace = true, features = ["flamegraph", "frame-pointer", "criterion"] }
 # secp256k1.workspace = true
+
 
 [features]
 default = ["c-kzg"]

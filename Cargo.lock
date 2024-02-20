@@ -6595,6 +6595,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "smallvec",
+ "sp1-precompiles",
  "strum 0.26.1",
  "tempfile",
  "test-fuzz 4.0.5",
@@ -7034,7 +7035,7 @@ dependencies = [
 [[package]]
 name = "revm"
 version = "5.0.0"
-source = "git+https://github.com/succinctlabs/revm-private.git?branch=john/v5.0.0-patched#5209516a782fefc94780f1436462dee8089b1fd6"
+source = "git+https://github.com/succinctlabs/revm-private.git?branch=john/v5.0.0-patched#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
 dependencies = [
  "auto_impl",
  "cfg-if",
@@ -7074,7 +7075,7 @@ dependencies = [
 [[package]]
 name = "revm-interpreter"
 version = "2.1.0"
-source = "git+https://github.com/succinctlabs/revm-private.git?branch=john/v5.0.0-patched#5209516a782fefc94780f1436462dee8089b1fd6"
+source = "git+https://github.com/succinctlabs/revm-private.git?branch=john/v5.0.0-patched#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
 dependencies = [
  "revm-primitives 2.0.0 (git+https://github.com/succinctlabs/revm-private.git?branch=john/v5.0.0-patched)",
  "serde",
@@ -7100,7 +7101,7 @@ dependencies = [
 [[package]]
 name = "revm-precompile"
 version = "4.0.0"
-source = "git+https://github.com/succinctlabs/revm-private.git?branch=john/v5.0.0-patched#5209516a782fefc94780f1436462dee8089b1fd6"
+source = "git+https://github.com/succinctlabs/revm-private.git?branch=john/v5.0.0-patched#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
 dependencies = [
  "anyhow",
  "aurora-engine-modexp",
@@ -7112,7 +7113,7 @@ dependencies = [
  "ripemd",
  "secp256k1 0.28.2",
  "sha2",
- "sp1-zkvm",
+ "sp1-precompiles",
  "substrate-bn",
 ]
 
@@ -7136,7 +7137,7 @@ dependencies = [
 [[package]]
 name = "revm-primitives"
 version = "2.0.0"
-source = "git+https://github.com/succinctlabs/revm-private.git?branch=john/v5.0.0-patched#5209516a782fefc94780f1436462dee8089b1fd6"
+source = "git+https://github.com/succinctlabs/revm-private.git?branch=john/v5.0.0-patched#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
 dependencies = [
  "alloy-primitives",
  "auto_impl",
@@ -7990,9 +7991,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "sp1-zkvm"
+name = "sp1-precompiles"
 version = "0.1.0"
-source = "git+https://github.com/succinctlabs/sp1#8ac9e54ceb049d79030f2f8831e039af0ca61b30"
+source = "git+https://github.com/succinctlabs/sp1.git#cf58553c9ba6811d597b3871fbdbaa7849cdfee2"
 dependencies = [
  "anyhow",
  "bincode",
