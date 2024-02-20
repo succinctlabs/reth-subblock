@@ -4,13 +4,19 @@ use crate::proofs::calculate_receipt_root_ref;
 use crate::proofs::calculate_receipt_root_ref_optimism;
 use crate::{
     // compression::{RECEIPT_COMPRESSOR, RECEIPT_DECOMPRESSOR},
-    logs_bloom, Bloom, Log, PruneSegmentError, TxType, B256,
+    logs_bloom,
+    Bloom,
+    Log,
+    PruneSegmentError,
+    TxType,
+    B256,
 };
 use alloy_rlp::{length_of_length, Decodable, Encodable};
 use bytes::{Buf, BufMut, BytesMut};
 #[cfg(any(test, feature = "arbitrary"))]
 use proptest::strategy::Strategy;
 use reth_codecs::{add_arbitrary_tests, main_codec, Compact, CompactZstd};
+use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
     ops::{Deref, DerefMut},
@@ -19,7 +25,7 @@ use std::{
 /// Receipt containing result of transaction execution.
 // #[main_codec(no_arbitrary, zstd)]
 #[add_arbitrary_tests]
-#[derive(Clone, Debug, PartialEq, Eq, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub struct Receipt {
     /// Receipt type.
     pub tx_type: TxType,

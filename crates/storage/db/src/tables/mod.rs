@@ -306,7 +306,7 @@ tables! {
     /// * If there were no shard we would get `None` entry or entry of different storage key.
     ///
     /// Code example can be found in `reth_provider::HistoricalStateProviderRef`
-    table AccountHistory<Key = ShardedKey<Address>, Value = BlockNumberList>;
+    table AccountHistory<Key = ShardedKey<Address>, Value = B256>;
 
     /// Stores pointers to block number changeset with changes for each storage key.
     ///
@@ -326,7 +326,7 @@ tables! {
     /// * If there were no shard we would get `None` entry or entry of different storage key.
     ///
     /// Code example can be found in `reth_provider::HistoricalStateProviderRef`
-    table StorageHistory<Key = StorageShardedKey, Value = BlockNumberList>;
+    table StorageHistory<Key = StorageShardedKey, Value = B256>;
 
     /// Stores the state of an account before a certain transaction changed it.
     /// Change on state can be: account is created, selfdestructed, touched while empty
