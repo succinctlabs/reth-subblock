@@ -25,7 +25,7 @@ use std::{
 /// Receipt containing result of transaction execution.
 // #[main_codec(no_arbitrary, zstd)]
 #[add_arbitrary_tests]
-#[derive(Clone, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Default, Serialize, Deserialize, Compact)]
 pub struct Receipt {
     /// Receipt type.
     pub tx_type: TxType,
