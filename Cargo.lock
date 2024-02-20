@@ -6159,7 +6159,6 @@ dependencies = [
  "futures",
  "parking_lot 0.12.1",
  "rand 0.8.5",
- "reth-eth-wire",
  "reth-network-api",
  "reth-nippy-jar",
  "reth-primitives",
