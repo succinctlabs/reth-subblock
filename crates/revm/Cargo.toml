@@ -16,6 +16,7 @@ workspace = true
 reth-primitives.workspace = true
 reth-interfaces.workspace = true
 reth-provider.workspace = true
+reth-consensus-common.workspace = true
 reth-node-api.workspace = true
 
 # revm
@@ -34,6 +35,7 @@ reth-node-optimism.workspace = true
 optimism = [
   "revm/optimism",
   "reth-primitives/optimism",
+  "reth-consensus-common/optimism",
   "reth-interfaces/optimism",
   "reth-node-api/optimism",
 ]
