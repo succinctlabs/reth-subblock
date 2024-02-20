@@ -8,13 +8,13 @@ use std::sync::Arc;
 
 /// Cursor of a snapshot segment.
 #[derive(Debug, Deref, DerefMut)]
-pub struct SnapshotCursor<'a>(NippyJarCursor<'a, SegmentHeader>);
+pub struct SnapshotCursor<'a>();
 
 impl<'a> SnapshotCursor<'a> {
     /// Returns a new [`SnapshotCursor`].
-    pub fn new(jar: &'a NippyJar<SegmentHeader>, reader: Arc<DataReader>) -> ProviderResult<Self> {
-        Ok(Self(NippyJarCursor::with_reader(jar, reader)?))
-    }
+    // pub fn new(jar: &'a NippyJar<SegmentHeader>, reader: Arc<DataReader>) -> ProviderResult<Self>
+    // {     Ok(Self(NippyJarCursor::with_reader(jar, reader)?))
+    // }
 
     /// Returns the current `BlockNumber` or `TxNumber` of the cursor depending on the kind of
     /// snapshot segment.

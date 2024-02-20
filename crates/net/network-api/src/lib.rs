@@ -17,3 +17,6 @@
 pub mod error;
 /// Reputation score
 pub mod reputation;
+
+pub use error::*;
+pub use reputation::*;

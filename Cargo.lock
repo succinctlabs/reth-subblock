@@ -5966,7 +5966,6 @@ dependencies = [
  "reth-interfaces",
  "reth-libmdbx",
  "reth-metrics",
- "reth-nippy-jar",
  "reth-primitives",
  "reth-tracing",
  "rustc-hash",
