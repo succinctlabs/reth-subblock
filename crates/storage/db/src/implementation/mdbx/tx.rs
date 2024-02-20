@@ -116,13 +116,13 @@ impl<K: TransactionKind> Tx<K> {
             let open_duration = metrics_handler.start.elapsed();
             let close_duration = start.elapsed();
 
-            TransactionMetrics::record_close(
-                metrics_handler.transaction_mode(),
-                outcome,
-                open_duration,
-                Some(close_duration),
-                commit_latency,
-            );
+            // TransactionMetrics::record_close(
+            //     metrics_handler.transaction_mode(),
+            //     outcome,
+            //     open_duration,
+            //     Some(close_duration),
+            //     commit_latency,
+            // );
 
             result
         } else {
@@ -233,13 +233,13 @@ impl<K: TransactionKind> Drop for MetricsHandler<K> {
         if !self.close_recorded {
             self.log_backtrace_on_long_read_transaction();
 
-            TransactionMetrics::record_close(
-                self.transaction_mode(),
-                TransactionOutcome::Drop,
-                self.start.elapsed(),
-                None,
-                None,
-            );
+            // TransactionMetrics::record_close(
+            //     self.transaction_mode(),
+            //     TransactionOutcome::Drop,
+            //     self.start.elapsed(),
+            //     None,
+            //     None,
+            // );
         }
     }
 }

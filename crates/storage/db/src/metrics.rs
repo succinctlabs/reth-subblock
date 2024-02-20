@@ -1,6 +1,6 @@
 use crate::Tables;
 use metrics::{Gauge, Histogram};
-use reth_libmdbx::CommitLatency;
+// use reth_libmdbx::CommitLatency;
 use reth_metrics::{metrics::Counter, Metrics};
 use rustc_hash::FxHasher;
 use std::{
@@ -202,39 +202,39 @@ impl TransactionMetrics {
         metrics.open_total.increment(1.0);
     }
 
-    /// Record transaction closing with the duration it was open and the duration it took to close
-    /// it.
-    pub(crate) fn record_close(
-        mode: TransactionMode,
-        outcome: TransactionOutcome,
-        open_duration: Duration,
-        close_duration: Option<Duration>,
-        commit_latency: Option<CommitLatency>,
-    ) {
-        let metrics = Self::new_with_labels(&[(Labels::TransactionMode.as_str(), mode.as_str())]);
-        metrics.open_total.decrement(1.0);
+    // /// Record transaction closing with the duration it was open and the duration it took to
+    // close /// it.
+    // pub(crate) fn record_close(
+    //     mode: TransactionMode,
+    //     outcome: TransactionOutcome,
+    //     open_duration: Duration,
+    //     close_duration: Option<Duration>,
+    //     commit_latency: Option<CommitLatency>,
+    // ) {
+    //     let metrics = Self::new_with_labels(&[(Labels::TransactionMode.as_str(),
+    // mode.as_str())]);     metrics.open_total.decrement(1.0);
 
-        let metrics = Self::new_with_labels(&[
-            (Labels::TransactionMode.as_str(), mode.as_str()),
-            (Labels::TransactionOutcome.as_str(), outcome.as_str()),
-        ]);
-        metrics.open_duration_seconds.record(open_duration);
+    //     let metrics = Self::new_with_labels(&[
+    //         (Labels::TransactionMode.as_str(), mode.as_str()),
+    //         (Labels::TransactionOutcome.as_str(), outcome.as_str()),
+    //     ]);
+    //     metrics.open_duration_seconds.record(open_duration);
 
-        if let Some(close_duration) = close_duration {
-            metrics.close_duration_seconds.record(close_duration)
-        }
+    //     if let Some(close_duration) = close_duration {
+    //         metrics.close_duration_seconds.record(close_duration)
+    //     }
 
-        if let Some(commit_latency) = commit_latency {
-            metrics.commit_preparation_duration_seconds.record(commit_latency.preparation());
-            metrics.commit_gc_wallclock_duration_seconds.record(commit_latency.gc_wallclock());
-            metrics.commit_audit_duration_seconds.record(commit_latency.audit());
-            metrics.commit_write_duration_seconds.record(commit_latency.write());
-            metrics.commit_sync_duration_seconds.record(commit_latency.sync());
-            metrics.commit_ending_duration_seconds.record(commit_latency.ending());
-            metrics.commit_whole_duration_seconds.record(commit_latency.whole());
-            metrics.commit_gc_cputime_duration_seconds.record(commit_latency.gc_cputime());
-        }
-    }
+    //     if let Some(commit_latency) = commit_latency {
+    //         metrics.commit_preparation_duration_seconds.record(commit_latency.preparation());
+    //         metrics.commit_gc_wallclock_duration_seconds.record(commit_latency.gc_wallclock());
+    //         metrics.commit_audit_duration_seconds.record(commit_latency.audit());
+    //         metrics.commit_write_duration_seconds.record(commit_latency.write());
+    //         metrics.commit_sync_duration_seconds.record(commit_latency.sync());
+    //         metrics.commit_ending_duration_seconds.record(commit_latency.ending());
+    //         metrics.commit_whole_duration_seconds.record(commit_latency.whole());
+    //         metrics.commit_gc_cputime_duration_seconds.record(commit_latency.gc_cputime());
+    //     }
+    // }
 }
 
 #[derive(Metrics, Clone)]

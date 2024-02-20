@@ -36,8 +36,8 @@ use crate::{
 use reth_primitives::{
     stage::StageCheckpoint,
     trie::{StorageTrieEntry, StoredBranchNode, StoredNibbles, StoredNibblesSubKey},
-    Account, Address, BlockHash, BlockNumber, Bytecode, Header, IntegerList, PruneCheckpoint,
-    PruneSegment, Receipt, StorageEntry, TransactionSignedNoHash, TxHash, TxNumber, B256,
+    Account, Address, BlockHash, BlockNumber, Bytecode, Header, PruneCheckpoint, PruneSegment,
+    Receipt, StorageEntry, TransactionSignedNoHash, TxHash, TxNumber, B256,
 };
 use std::fmt;
 
@@ -373,8 +373,8 @@ tables! {
 
 // Alias types.
 
-/// List with transaction numbers.
-pub type BlockNumberList = IntegerList;
+// /// List with transaction numbers.
+// pub type BlockNumberList = IntegerList;
 
 /// Encoded stage id.
 pub type StageId = String;

@@ -87,65 +87,63 @@ pub use utils::is_database_empty;
 #[cfg(feature = "mdbx")]
 pub use mdbx::{DatabaseEnv, DatabaseEnvKind};
 
-use crate::mdbx::DatabaseArguments;
-use eyre::WrapErr;
 use std::path::Path;
 
-/// Opens up an existing database or creates a new one at the specified path. Creates tables if
-/// necessary. Read/Write mode.
-pub fn init_db<P: AsRef<Path>>(path: P, args: DatabaseArguments) -> eyre::Result<DatabaseEnv> {
-    use crate::version::{check_db_version_file, create_db_version_file, DatabaseVersionError};
+// /// Opens up an existing database or creates a new one at the specified path. Creates tables if
+// /// necessary. Read/Write mode.
+// pub fn init_db<P: AsRef<Path>>(path: P, args: DatabaseArguments) -> eyre::Result<DatabaseEnv> {
+//     use crate::version::{check_db_version_file, create_db_version_file, DatabaseVersionError};
 
-    let rpath = path.as_ref();
-    if is_database_empty(rpath) {
-        std::fs::create_dir_all(rpath)
-            .wrap_err_with(|| format!("Could not create database directory {}", rpath.display()))?;
-        create_db_version_file(rpath)?;
-    } else {
-        match check_db_version_file(rpath) {
-            Ok(_) => (),
-            Err(DatabaseVersionError::MissingFile) => create_db_version_file(rpath)?,
-            Err(err) => return Err(err.into()),
-        }
-    }
-    #[cfg(feature = "mdbx")]
-    {
-        let db = DatabaseEnv::open(rpath, DatabaseEnvKind::RW, args)?;
-        db.create_tables()?;
-        Ok(db)
-    }
-    #[cfg(not(feature = "mdbx"))]
-    {
-        unimplemented!();
-    }
-}
+//     let rpath = path.as_ref();
+//     if is_database_empty(rpath) {
+//         std::fs::create_dir_all(rpath)
+//             .wrap_err_with(|| format!("Could not create database directory {}",
+// rpath.display()))?;         create_db_version_file(rpath)?;
+//     } else {
+//         match check_db_version_file(rpath) {
+//             Ok(_) => (),
+//             Err(DatabaseVersionError::MissingFile) => create_db_version_file(rpath)?,
+//             Err(err) => return Err(err.into()),
+//         }
+//     }
+//     #[cfg(feature = "mdbx")]
+//     {
+//         let db = DatabaseEnv::open(rpath, DatabaseEnvKind::RW, args)?;
+//         db.create_tables()?;
+//         Ok(db)
+//     }
+//     #[cfg(not(feature = "mdbx"))]
+//     {
+//         unimplemented!();
+//     }
+// }
 
-/// Opens up an existing database. Read only mode. It doesn't create it or create tables if missing.
-pub fn open_db_read_only(path: &Path, args: DatabaseArguments) -> eyre::Result<DatabaseEnv> {
-    #[cfg(feature = "mdbx")]
-    {
-        DatabaseEnv::open(path, DatabaseEnvKind::RO, args)
-            .with_context(|| format!("Could not open database at path: {}", path.display()))
-    }
-    #[cfg(not(feature = "mdbx"))]
-    {
-        unimplemented!();
-    }
-}
+// /// Opens up an existing database. Read only mode. It doesn't create it or create tables if
+// missing. pub fn open_db_read_only(path: &Path, args: DatabaseArguments) ->
+// eyre::Result<DatabaseEnv> {     #[cfg(feature = "mdbx")]
+//     {
+//         DatabaseEnv::open(path, DatabaseEnvKind::RO, args)
+//             .with_context(|| format!("Could not open database at path: {}", path.display()))
+//     }
+//     #[cfg(not(feature = "mdbx"))]
+//     {
+//         unimplemented!();
+//     }
+// }
 
-/// Opens up an existing database. Read/Write mode with WriteMap enabled. It doesn't create it or
-/// create tables if missing.
-pub fn open_db(path: &Path, args: DatabaseArguments) -> eyre::Result<DatabaseEnv> {
-    #[cfg(feature = "mdbx")]
-    {
-        DatabaseEnv::open(path, DatabaseEnvKind::RW, args)
-            .with_context(|| format!("Could not open database at path: {}", path.display()))
-    }
-    #[cfg(not(feature = "mdbx"))]
-    {
-        unimplemented!();
-    }
-}
+// /// Opens up an existing database. Read/Write mode with WriteMap enabled. It doesn't create it or
+// /// create tables if missing.
+// pub fn open_db(path: &Path, args: DatabaseArguments) -> eyre::Result<DatabaseEnv> {
+//     #[cfg(feature = "mdbx")]
+//     {
+//         DatabaseEnv::open(path, DatabaseEnvKind::RW, args)
+//             .with_context(|| format!("Could not open database at path: {}", path.display()))
+//     }
+//     #[cfg(not(feature = "mdbx"))]
+//     {
+//         unimplemented!();
+//     }
+// }
 
 /// Collection of database test utilities
 #[cfg(any(test, feature = "test-utils"))]
