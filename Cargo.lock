@@ -4783,16 +4783,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
-name = "page_size"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30d5b2194ed13191c1999ae0704b7839fb18384fa22e49b57eeaa97d79ce40da"
-dependencies = [
- "libc",
- "winapi",
-]
-
-[[package]]
 name = "parity-scale-codec"
 version = "3.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5954,7 +5944,6 @@ dependencies = [
  "metrics",
  "modular-bitfield",
  "once_cell",
- "page_size",
  "parity-scale-codec",
  "parking_lot 0.12.1",
  "paste",
