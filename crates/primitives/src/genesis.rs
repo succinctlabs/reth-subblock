@@ -4,10 +4,10 @@
 #[doc(inline)]
 pub use alloy_genesis::*;
 
-#[cfg(any(test, feature = "test-utils"))]
+#[cfg(all(any(test, feature = "test-utils"), feature = "na"))]
 pub use allocator::GenesisAllocator;
 
-#[cfg(any(test, feature = "test-utils"))]
+#[cfg(all(any(test, feature = "test-utils"), feature = "na"))]
 mod allocator {
     use crate::{public_key_to_address, Address, Bytes, B256, U256};
     use alloy_genesis::GenesisAccount;

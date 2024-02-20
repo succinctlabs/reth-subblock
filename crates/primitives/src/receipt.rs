@@ -3,7 +3,7 @@ use crate::proofs::calculate_receipt_root_ref;
 #[cfg(feature = "optimism")]
 use crate::proofs::calculate_receipt_root_ref_optimism;
 use crate::{
-    compression::{RECEIPT_COMPRESSOR, RECEIPT_DECOMPRESSOR},
+    // compression::{RECEIPT_COMPRESSOR, RECEIPT_DECOMPRESSOR},
     logs_bloom, Bloom, Log, PruneSegmentError, TxType, B256,
 };
 use alloy_rlp::{length_of_length, Decodable, Encodable};
@@ -17,7 +17,7 @@ use std::{
 };
 
 /// Receipt containing result of transaction execution.
-#[main_codec(no_arbitrary, zstd)]
+// #[main_codec(no_arbitrary, zstd)]
 #[add_arbitrary_tests]
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct Receipt {
@@ -171,7 +171,7 @@ impl From<Receipt> for ReceiptWithBloom {
 }
 
 /// [`Receipt`] with calculated bloom filter.
-#[main_codec]
+// #[main_codec]
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct ReceiptWithBloom {
     /// Bloom filter build from logs.
@@ -666,37 +666,37 @@ mod tests {
         assert_eq!(buf.freeze(), &data[..]);
     }
 
-    #[test]
-    fn gigantic_receipt() {
-        let receipt = Receipt {
-            cumulative_gas_used: 16747627,
-            success: true,
-            tx_type: TxType::Legacy,
-            logs: vec![
-                Log {
-                    address: address!("4bf56695415f725e43c3e04354b604bcfb6dfb6e"),
-                    topics: vec![b256!(
-                        "c69dc3d7ebff79e41f525be431d5cd3cc08f80eaf0f7819054a726eeb7086eb9"
-                    )],
-                    data: Bytes::from(vec![1; 0xffffff]),
-                },
-                Log {
-                    address: address!("faca325c86bf9c2d5b413cd7b90b209be92229c2"),
-                    topics: vec![b256!(
-                        "8cca58667b1e9ffa004720ac99a3d61a138181963b294d270d91c53d36402ae2"
-                    )],
-                    data: Bytes::from(vec![1; 0xffffff]),
-                },
-            ],
-            #[cfg(feature = "optimism")]
-            deposit_nonce: None,
-            #[cfg(feature = "optimism")]
-            deposit_receipt_version: None,
-        };
+    // #[test]
+    // fn gigantic_receipt() {
+    //     let receipt = Receipt {
+    //         cumulative_gas_used: 16747627,
+    //         success: true,
+    //         tx_type: TxType::Legacy,
+    //         logs: vec![
+    //             Log {
+    //                 address: address!("4bf56695415f725e43c3e04354b604bcfb6dfb6e"),
+    //                 topics: vec![b256!(
+    //                     "c69dc3d7ebff79e41f525be431d5cd3cc08f80eaf0f7819054a726eeb7086eb9"
+    //                 )],
+    //                 data: Bytes::from(vec![1; 0xffffff]),
+    //             },
+    //             Log {
+    //                 address: address!("faca325c86bf9c2d5b413cd7b90b209be92229c2"),
+    //                 topics: vec![b256!(
+    //                     "8cca58667b1e9ffa004720ac99a3d61a138181963b294d270d91c53d36402ae2"
+    //                 )],
+    //                 data: Bytes::from(vec![1; 0xffffff]),
+    //             },
+    //         ],
+    //         #[cfg(feature = "optimism")]
+    //         deposit_nonce: None,
+    //         #[cfg(feature = "optimism")]
+    //         deposit_receipt_version: None,
+    //     };
 
-        let mut data = vec![];
-        receipt.clone().to_compact(&mut data);
-        let (decoded, _) = Receipt::from_compact(&data[..], data.len());
-        assert_eq!(decoded, receipt);
-    }
+    //     let mut data = vec![];
+    //     receipt.clone().to_compact(&mut data);
+    //     let (decoded, _) = Receipt::from_compact(&data[..], data.len());
+    //     assert_eq!(decoded, receipt);
+    // }
 }

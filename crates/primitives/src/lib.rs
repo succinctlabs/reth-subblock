@@ -25,7 +25,7 @@ mod error;
 pub mod fs;
 pub mod genesis;
 mod header;
-mod integer_list;
+// mod integer_list;
 mod log;
 mod net;
 mod peer;
@@ -61,7 +61,7 @@ pub use constants::{
 pub use error::{GotExpected, GotExpectedBoxed};
 pub use genesis::{ChainConfig, Genesis, GenesisAccount};
 pub use header::{Header, HeaderValidationError, HeadersDirection, SealedHeader};
-pub use integer_list::IntegerList;
+// pub use integer_list::IntegerList;
 pub use log::{logs_bloom, Log};
 pub use net::{
     goerli_nodes, holesky_nodes, mainnet_nodes, parse_nodes, sepolia_nodes, NodeRecord,

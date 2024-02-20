@@ -1,6 +1,6 @@
 use crate::PeerId;
 use alloy_rlp::{RlpDecodable, RlpEncodable};
-use secp256k1::{SecretKey, SECP256K1};
+// use secp256k1::{SecretKey, SECP256K1};
 use serde_with::{DeserializeFromStr, SerializeDisplay};
 use std::{
     fmt,
@@ -38,12 +38,13 @@ pub struct NodeRecord {
 }
 
 impl NodeRecord {
-    /// Derive the [`NodeRecord`] from the secret key and addr
-    pub fn from_secret_key(addr: SocketAddr, sk: &SecretKey) -> Self {
-        let pk = secp256k1::PublicKey::from_secret_key(SECP256K1, sk);
-        let id = PeerId::from_slice(&pk.serialize_uncompressed()[1..]);
-        Self::new(addr, id)
-    }
+    // /// Derive the [`NodeRecord`] from the secret key and addr
+    // pub fn from_secret_key(addr: SocketAddr, sk: &SecretKey) -> Self {
+    //     todo!()
+    //     // let pk = secp256k1::PublicKey::from_secret_key(SECP256K1, sk);
+    //     // let id = PeerId::from_slice(&pk.serialize_uncompressed()[1..]);
+    //     // Self::new(addr, id)
+    // }
 
     /// Converts the `address` into an [`Ipv4Addr`] if the `address` is a mapped
     /// [Ipv6Addr](std::net::Ipv6Addr).
