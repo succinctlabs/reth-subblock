@@ -32,7 +32,7 @@ impl_compression_for_compact!(
     Header,
     Account,
     Log,
-    Receipt,
+    // Receipt,
     TxType,
     StorageEntry,
     StoredBranchNode,
