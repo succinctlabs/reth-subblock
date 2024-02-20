@@ -25,7 +25,7 @@ pub(crate) mod secp256k1 {
         #[cfg(target_os = "zkvm")]
         {
             let pubkey = sp1_precompiles::secp256k1::ecrecover(sig, msg).unwrap();
-            return  Ok(public_key_to_address(pubkey));
+            return Ok(public_key_bytes_to_address(pubkey));
         }
 
         let recid = RecoveryId::from_byte(sig[64]).expect("recovery ID is valid");
