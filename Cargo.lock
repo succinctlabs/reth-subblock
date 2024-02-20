@@ -6657,7 +6657,6 @@ dependencies = [
 name = "reth-revm"
 version = "0.1.0-alpha.18"
 dependencies = [
- "reth-consensus-common",
  "reth-interfaces",
  "reth-node-api",
  "reth-node-ethereum",
