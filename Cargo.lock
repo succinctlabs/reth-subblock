@@ -6329,8 +6329,6 @@ version = "0.1.0-alpha.18"
 dependencies = [
  "alloy-chains",
  "async-trait",
- "reth-discv4",
- "reth-eth-wire",
  "reth-primitives",
  "reth-rpc-types",
  "serde",

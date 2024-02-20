@@ -15,8 +15,6 @@ workspace = true
 # reth
 reth-primitives.workspace = true
 reth-rpc-types.workspace = true
-reth-discv4 = { workspace = true, optional = true }
-reth-eth-wire = { workspace = true, optional = true }
 alloy-chains.workspace = true
 # io
 serde = { workspace = true, features = ["derive"], optional = true }
@@ -27,7 +25,6 @@ thiserror.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 
 [features]
-default = ["serde", "full"]
+default = ["serde"]
 serde = ["dep:serde"]
 optimism = []
-full = ["dep:reth-discv4", "dep:reth-eth-wire"]
