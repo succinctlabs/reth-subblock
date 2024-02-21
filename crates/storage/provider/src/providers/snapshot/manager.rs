@@ -12,7 +12,6 @@ use reth_db::{
     snapshot::{iter_snapshots, HeaderMask, ReceiptMask, SnapshotCursor, TransactionMask},
 };
 use reth_interfaces::provider::{ProviderError, ProviderResult};
-use reth_nippy_jar::NippyJar;
 use reth_primitives::{
     snapshot::HighestSnapshots, Address, Block, BlockHash, BlockHashOrNumber, BlockNumber,
     BlockWithSenders, ChainInfo, Header, Receipt, SealedBlock, SealedBlockWithSenders,
@@ -155,21 +154,22 @@ impl SnapshotProvider {
         block_range: &RangeInclusive<u64>,
         tx_range: &RangeInclusive<u64>,
     ) -> ProviderResult<SnapshotJarProvider<'_>> {
-        let key = (*block_range.end(), segment);
-        if let Some(jar) = self.map.get(&key) {
-            Ok(jar.into())
-        } else {
-            let jar = NippyJar::load(&self.path.join(segment.filename(block_range, tx_range)))
-                .map(|jar| {
-                if self.load_filters {
-                    return jar.load_filters()
-                }
-                Ok(jar)
-            })??;
+        todo!()
+        // let key = (*block_range.end(), segment);
+        // if let Some(jar) = self.map.get(&key) {
+        //     Ok(jar.into())
+        // } else {
+        //     let jar = NippyJar::load(&self.path.join(segment.filename(block_range, tx_range)))
+        //         .map(|jar| {
+        //         if self.load_filters {
+        //             return jar.load_filters()
+        //         }
+        //         Ok(jar)
+        //     })??;
 
-            self.map.insert(key, LoadedJar::new(jar)?);
-            Ok(self.map.get(&key).expect("qed").into())
-        }
+        //     self.map.insert(key, LoadedJar::new(jar)?);
+        //     Ok(self.map.get(&key).expect("qed").into())
+        // }
     }
 
     /// Gets a snapshot segment's block range and transaction range from the provider inner block

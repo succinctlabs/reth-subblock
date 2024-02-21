@@ -23,7 +23,7 @@ use reth_db::{
     table::{Table, TableRow},
     tables,
     transaction::{DbTx, DbTxMut},
-    BlockNumberList, DatabaseError,
+    DatabaseError,
 };
 use reth_interfaces::{
     p2p::headers::downloader::SyncTarget,
@@ -161,53 +161,53 @@ impl<TX: DbTx> DatabaseProvider<TX> {
     }
 }
 
-/// For a given key, unwind all history shards that are below the given block number.
-///
-/// S - Sharded key subtype.
-/// T - Table to walk over.
-/// C - Cursor implementation.
-///
-/// This function walks the entries from the given start key and deletes all shards that belong to
-/// the key and are below the given block number.
-///
-/// The boundary shard (the shard is split by the block number) is removed from the database. Any
-/// indices that are above the block number are filtered out. The boundary shard is returned for
-/// reinsertion (if it's not empty).
-fn unwind_history_shards<S, T, C>(
-    cursor: &mut C,
-    start_key: T::Key,
-    block_number: BlockNumber,
-    mut shard_belongs_to_key: impl FnMut(&T::Key) -> bool,
-) -> ProviderResult<Vec<usize>>
-where
-    T: Table<Value = BlockNumberList>,
-    T::Key: AsRef<ShardedKey<S>>,
-    C: DbCursorRO<T> + DbCursorRW<T>,
-{
-    let mut item = cursor.seek_exact(start_key)?;
-    while let Some((sharded_key, list)) = item {
-        // If the shard does not belong to the key, break.
-        if !shard_belongs_to_key(&sharded_key) {
-            break
-        }
-        cursor.delete_current()?;
+// /// For a given key, unwind all history shards that are below the given block number.
+// ///
+// /// S - Sharded key subtype.
+// /// T - Table to walk over.
+// /// C - Cursor implementation.
+// ///
+// /// This function walks the entries from the given start key and deletes all shards that belong
+// to /// the key and are below the given block number.
+// ///
+// /// The boundary shard (the shard is split by the block number) is removed from the database. Any
+// /// indices that are above the block number are filtered out. The boundary shard is returned for
+// /// reinsertion (if it's not empty).
+// fn unwind_history_shards<S, T, C>(
+//     cursor: &mut C,
+//     start_key: T::Key,
+//     block_number: BlockNumber,
+//     mut shard_belongs_to_key: impl FnMut(&T::Key) -> bool,
+// ) -> ProviderResult<Vec<usize>>
+// where
+//     T: Table<Value = BlockNumberList>,
+//     T::Key: AsRef<ShardedKey<S>>,
+//     C: DbCursorRO<T> + DbCursorRW<T>,
+// {
+//     let mut item = cursor.seek_exact(start_key)?;
+//     while let Some((sharded_key, list)) = item {
+//         // If the shard does not belong to the key, break.
+//         if !shard_belongs_to_key(&sharded_key) {
+//             break
+//         }
+//         cursor.delete_current()?;
 
-        // Check the first item.
-        // If it is greater or eq to the block number, delete it.
-        let first = list.iter(0).next().expect("List can't be empty");
-        if first >= block_number as usize {
-            item = cursor.prev()?;
-            continue
-        } else if block_number <= sharded_key.as_ref().highest_block_number {
-            // Filter out all elements greater than block number.
-            return Ok(list.iter(0).take_while(|i| *i < block_number as usize).collect::<Vec<_>>())
-        } else {
-            return Ok(list.iter(0).collect::<Vec<_>>())
-        }
-    }
+//         // Check the first item.
+//         // If it is greater or eq to the block number, delete it.
+//         let first = list.iter(0).next().expect("List can't be empty");
+//         if first >= block_number as usize {
+//             item = cursor.prev()?;
+//             continue
+//         } else if block_number <= sharded_key.as_ref().highest_block_number {
+//             // Filter out all elements greater than block number.
+//             return Ok(list.iter(0).take_while(|i| *i < block_number as
+// usize).collect::<Vec<_>>())         } else {
+//             return Ok(list.iter(0).collect::<Vec<_>>())
+//         }
+//     }
 
-    Ok(Vec::new())
-}
+//     Ok(Vec::new())
+// }
 
 impl<TX: DbTx> DatabaseProvider<TX> {
     /// Creates a provider with an inner read-only transaction.
@@ -911,65 +911,65 @@ impl<TX: DbTxMut + DbTx> DatabaseProvider<TX> {
         Ok((deleted, walker.next().transpose()?.is_none()))
     }
 
-    /// Load shard and remove it. If list is empty, last shard was full or
-    /// there are no shards at all.
-    fn take_shard<T>(&self, key: T::Key) -> ProviderResult<Vec<u64>>
-    where
-        T: Table<Value = BlockNumberList>,
-    {
-        let mut cursor = self.tx.cursor_read::<T>()?;
-        let shard = cursor.seek_exact(key)?;
-        if let Some((shard_key, list)) = shard {
-            // delete old shard so new one can be inserted.
-            self.tx.delete::<T>(shard_key, None)?;
-            let list = list.iter(0).map(|i| i as u64).collect::<Vec<_>>();
-            return Ok(list)
-        }
-        Ok(Vec::new())
-    }
+    // /// Load shard and remove it. If list is empty, last shard was full or
+    // /// there are no shards at all.
+    // fn take_shard<T>(&self, key: T::Key) -> ProviderResult<Vec<u64>>
+    // where
+    //     T: Table<Value = BlockNumberList>,
+    // {
+    //     let mut cursor = self.tx.cursor_read::<T>()?;
+    //     let shard = cursor.seek_exact(key)?;
+    //     if let Some((shard_key, list)) = shard {
+    //         // delete old shard so new one can be inserted.
+    //         self.tx.delete::<T>(shard_key, None)?;
+    //         let list = list.iter(0).map(|i| i as u64).collect::<Vec<_>>();
+    //         return Ok(list)
+    //     }
+    //     Ok(Vec::new())
+    // }
 
-    /// Insert history index to the database.
-    ///
-    /// For each updated partial key, this function removes the last shard from
-    /// the database (if any), appends the new indices to it, chunks the resulting integer list and
-    /// inserts the new shards back into the database.
-    ///
-    /// This function is used by history indexing stages.
-    fn append_history_index<P, T>(
-        &self,
-        index_updates: BTreeMap<P, Vec<u64>>,
-        mut sharded_key_factory: impl FnMut(P, BlockNumber) -> T::Key,
-    ) -> ProviderResult<()>
-    where
-        P: Copy,
-        T: Table<Value = BlockNumberList>,
-    {
-        for (partial_key, indices) in index_updates {
-            let last_shard = self.take_shard::<T>(sharded_key_factory(partial_key, u64::MAX))?;
-            // chunk indices and insert them in shards of N size.
-            let indices = last_shard.iter().chain(indices.iter());
-            let chunks = indices
-                .chunks(sharded_key::NUM_OF_INDICES_IN_SHARD)
-                .into_iter()
-                .map(|chunks| chunks.map(|i| *i as usize).collect::<Vec<usize>>())
-                .collect::<Vec<_>>();
+    // /// Insert history index to the database.
+    // ///
+    // /// For each updated partial key, this function removes the last shard from
+    // /// the database (if any), appends the new indices to it, chunks the resulting integer list
+    // and /// inserts the new shards back into the database.
+    // ///
+    // /// This function is used by history indexing stages.
+    // fn append_history_index<P, T>(
+    //     &self,
+    //     index_updates: BTreeMap<P, Vec<u64>>,
+    //     mut sharded_key_factory: impl FnMut(P, BlockNumber) -> T::Key,
+    // ) -> ProviderResult<()>
+    // where
+    //     P: Copy,
+    //     T: Table<Value = BlockNumberList>,
+    // {
+    //     for (partial_key, indices) in index_updates {
+    //         let last_shard = self.take_shard::<T>(sharded_key_factory(partial_key, u64::MAX))?;
+    //         // chunk indices and insert them in shards of N size.
+    //         let indices = last_shard.iter().chain(indices.iter());
+    //         let chunks = indices
+    //             .chunks(sharded_key::NUM_OF_INDICES_IN_SHARD)
+    //             .into_iter()
+    //             .map(|chunks| chunks.map(|i| *i as usize).collect::<Vec<usize>>())
+    //             .collect::<Vec<_>>();
 
-            let mut chunks = chunks.into_iter().peekable();
-            while let Some(list) = chunks.next() {
-                let highest_block_number = if chunks.peek().is_some() {
-                    *list.last().expect("`chunks` does not return empty list") as u64
-                } else {
-                    // Insert last list with u64::MAX
-                    u64::MAX
-                };
-                self.tx.put::<T>(
-                    sharded_key_factory(partial_key, highest_block_number),
-                    BlockNumberList::new_pre_sorted(list),
-                )?;
-            }
-        }
-        Ok(())
-    }
+    //         let mut chunks = chunks.into_iter().peekable();
+    //         while let Some(list) = chunks.next() {
+    //             let highest_block_number = if chunks.peek().is_some() {
+    //                 *list.last().expect("`chunks` does not return empty list") as u64
+    //             } else {
+    //                 // Insert last list with u64::MAX
+    //                 u64::MAX
+    //             };
+    //             self.tx.put::<T>(
+    //                 sharded_key_factory(partial_key, highest_block_number),
+    //                 BlockNumberList::new_pre_sorted(list),
+    //             )?;
+    //         }
+    //     }
+    //     Ok(())
+    // }
 }
 
 impl<TX: DbTx> AccountReader for DatabaseProvider<TX> {
@@ -2154,118 +2154,118 @@ impl<TX: DbTxMut + DbTx> HashingWriter for DatabaseProvider<TX> {
     }
 }
 
-impl<TX: DbTxMut + DbTx> HistoryWriter for DatabaseProvider<TX> {
-    fn update_history_indices(&self, range: RangeInclusive<BlockNumber>) -> ProviderResult<()> {
-        // account history stage
-        {
-            let indices = self.changed_accounts_and_blocks_with_range(range.clone())?;
-            self.insert_account_history_index(indices)?;
-        }
+// impl<TX: DbTxMut + DbTx> HistoryWriter for DatabaseProvider<TX> {
+//     fn update_history_indices(&self, range: RangeInclusive<BlockNumber>) -> ProviderResult<()> {
+//         // account history stage
+//         {
+//             let indices = self.changed_accounts_and_blocks_with_range(range.clone())?;
+//             self.insert_account_history_index(indices)?;
+//         }
 
-        // storage history stage
-        {
-            let indices = self.changed_storages_and_blocks_with_range(range)?;
-            self.insert_storage_history_index(indices)?;
-        }
+//         // storage history stage
+//         {
+//             let indices = self.changed_storages_and_blocks_with_range(range)?;
+//             self.insert_storage_history_index(indices)?;
+//         }
 
-        Ok(())
-    }
+//         Ok(())
+//     }
 
-    fn insert_storage_history_index(
-        &self,
-        storage_transitions: BTreeMap<(Address, B256), Vec<u64>>,
-    ) -> ProviderResult<()> {
-        self.append_history_index::<_, tables::StorageHistory>(
-            storage_transitions,
-            |(address, storage_key), highest_block_number| {
-                StorageShardedKey::new(address, storage_key, highest_block_number)
-            },
-        )
-    }
+//     fn insert_storage_history_index(
+//         &self,
+//         storage_transitions: BTreeMap<(Address, B256), Vec<u64>>,
+//     ) -> ProviderResult<()> {
+//         self.append_history_index::<_, tables::StorageHistory>(
+//             storage_transitions,
+//             |(address, storage_key), highest_block_number| {
+//                 StorageShardedKey::new(address, storage_key, highest_block_number)
+//             },
+//         )
+//     }
 
-    fn insert_account_history_index(
-        &self,
-        account_transitions: BTreeMap<Address, Vec<u64>>,
-    ) -> ProviderResult<()> {
-        self.append_history_index::<_, tables::AccountHistory>(account_transitions, ShardedKey::new)
-    }
+//     fn insert_account_history_index(
+//         &self,
+//         account_transitions: BTreeMap<Address, Vec<u64>>,
+//     ) -> ProviderResult<()> {
+//         self.append_history_index::<_, tables::AccountHistory>(account_transitions,
+// ShardedKey::new)     }
 
-    fn unwind_storage_history_indices(
-        &self,
-        range: Range<BlockNumberAddress>,
-    ) -> ProviderResult<usize> {
-        let mut storage_changesets = self
-            .tx
-            .cursor_read::<tables::StorageChangeSet>()?
-            .walk_range(range)?
-            .map(|entry| {
-                entry.map(|(BlockNumberAddress((bn, address)), storage)| (address, storage.key, bn))
-            })
-            .collect::<Result<Vec<_>, _>>()?;
-        storage_changesets.sort_by_key(|(address, key, _)| (*address, *key));
+//     // fn unwind_storage_history_indices(
+//     //     &self,
+//     //     range: Range<BlockNumberAddress>,
+//     // ) -> ProviderResult<usize> {
+//     //     let mut storage_changesets = self
+//     //         .tx
+//     //         .cursor_read::<tables::StorageChangeSet>()?
+//     //         .walk_range(range)?
+//     //         .map(|entry| {
+//     //             entry.map(|(BlockNumberAddress((bn, address)), storage)| (address,
+// storage.key,     // bn))         })
+//     //         .collect::<Result<Vec<_>, _>>()?;
+//     //     storage_changesets.sort_by_key(|(address, key, _)| (*address, *key));
 
-        let mut cursor = self.tx.cursor_write::<tables::StorageHistory>()?;
-        for &(address, storage_key, rem_index) in &storage_changesets {
-            let partial_shard = unwind_history_shards::<_, tables::StorageHistory, _>(
-                &mut cursor,
-                StorageShardedKey::last(address, storage_key),
-                rem_index,
-                |storage_sharded_key| {
-                    storage_sharded_key.address == address &&
-                        storage_sharded_key.sharded_key.key == storage_key
-                },
-            )?;
+//     //     let mut cursor = self.tx.cursor_write::<tables::StorageHistory>()?;
+//     //     for &(address, storage_key, rem_index) in &storage_changesets {
+//     //         let partial_shard = unwind_history_shards::<_, tables::StorageHistory, _>(
+//     //             &mut cursor,
+//     //             StorageShardedKey::last(address, storage_key),
+//     //             rem_index,
+//     //             |storage_sharded_key| {
+//     //                 storage_sharded_key.address == address &&
+//     //                     storage_sharded_key.sharded_key.key == storage_key
+//     //             },
+//     //         )?;
 
-            // Check the last returned partial shard.
-            // If it's not empty, the shard needs to be reinserted.
-            if !partial_shard.is_empty() {
-                cursor.insert(
-                    StorageShardedKey::last(address, storage_key),
-                    BlockNumberList::new_pre_sorted(partial_shard),
-                )?;
-            }
-        }
+//     //         // Check the last returned partial shard.
+//     //         // If it's not empty, the shard needs to be reinserted.
+//     //         if !partial_shard.is_empty() {
+//     //             cursor.insert(
+//     //                 StorageShardedKey::last(address, storage_key),
+//     //                 BlockNumberList::new_pre_sorted(partial_shard),
+//     //             )?;
+//     //         }
+//     //     }
 
-        let changesets = storage_changesets.len();
-        Ok(changesets)
-    }
+//     //     let changesets = storage_changesets.len();
+//     //     Ok(changesets)
+//     // }
 
-    fn unwind_account_history_indices(
-        &self,
-        range: RangeInclusive<BlockNumber>,
-    ) -> ProviderResult<usize> {
-        let mut last_indices = self
-            .tx
-            .cursor_read::<tables::AccountChangeSet>()?
-            .walk_range(range)?
-            .map(|entry| entry.map(|(index, account)| (account.address, index)))
-            .collect::<Result<Vec<_>, _>>()?;
-        last_indices.sort_by_key(|(a, _)| *a);
+//     // fn unwind_account_history_indices(
+//     //     &self,
+//     //     range: RangeInclusive<BlockNumber>,
+//     // ) -> ProviderResult<usize> {
+//     //     let mut last_indices = self
+//     //         .tx
+//     //         .cursor_read::<tables::AccountChangeSet>()?
+//     //         .walk_range(range)?
+//     //         .map(|entry| entry.map(|(index, account)| (account.address, index)))
+//     //         .collect::<Result<Vec<_>, _>>()?;
+//     //     last_indices.sort_by_key(|(a, _)| *a);
 
-        // Unwind the account history index.
-        let mut cursor = self.tx.cursor_write::<tables::AccountHistory>()?;
-        for &(address, rem_index) in &last_indices {
-            let partial_shard = unwind_history_shards::<_, tables::AccountHistory, _>(
-                &mut cursor,
-                ShardedKey::last(address),
-                rem_index,
-                |sharded_key| sharded_key.key == address,
-            )?;
+//     //     // Unwind the account history index.
+//     //     let mut cursor = self.tx.cursor_write::<tables::AccountHistory>()?;
+//     //     for &(address, rem_index) in &last_indices {
+//     //         let partial_shard = unwind_history_shards::<_, tables::AccountHistory, _>(
+//     //             &mut cursor,
+//     //             ShardedKey::last(address),
+//     //             rem_index,
+//     //             |sharded_key| sharded_key.key == address,
+//     //         )?;
 
-            // Check the last returned partial shard.
-            // If it's not empty, the shard needs to be reinserted.
-            if !partial_shard.is_empty() {
-                cursor.insert(
-                    ShardedKey::last(address),
-                    BlockNumberList::new_pre_sorted(partial_shard),
-                )?;
-            }
-        }
+//     //         // Check the last returned partial shard.
+//     //         // If it's not empty, the shard needs to be reinserted.
+//     //         if !partial_shard.is_empty() {
+//     //             cursor.insert(
+//     //                 ShardedKey::last(address),
+//     //                 BlockNumberList::new_pre_sorted(partial_shard),
+//     //             )?;
+//     //         }
+//     //     }
 
-        let changesets = last_indices.len();
-        Ok(changesets)
-    }
-}
+//     //     let changesets = last_indices.len();
+//     //     Ok(changesets)
+//     // }
+// }
 
 impl<TX: DbTxMut + DbTx> BlockExecutionWriter for DatabaseProvider<TX> {
     /// Return range of blocks and its execution result

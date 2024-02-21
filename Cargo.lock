@@ -4783,16 +4783,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
-name = "page_size"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30d5b2194ed13191c1999ae0704b7839fb18384fa22e49b57eeaa97d79ce40da"
-dependencies = [
- "libc",
- "winapi",
-]
-
-[[package]]
 name = "parity-scale-codec"
 version = "3.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5954,7 +5944,6 @@ dependencies = [
  "metrics",
  "modular-bitfield",
  "once_cell",
- "page_size",
  "parity-scale-codec",
  "parking_lot 0.12.1",
  "paste",
@@ -5966,7 +5955,6 @@ dependencies = [
  "reth-interfaces",
  "reth-libmdbx",
  "reth-metrics",
- "reth-nippy-jar",
  "reth-primitives",
  "reth-tracing",
  "rustc-hash",
@@ -6159,9 +6147,7 @@ dependencies = [
  "futures",
  "parking_lot 0.12.1",
  "rand 0.8.5",
- "reth-eth-wire",
  "reth-network-api",
- "reth-nippy-jar",
  "reth-primitives",
  "reth-rpc-types",
  "secp256k1 0.27.0",
@@ -6330,8 +6316,6 @@ version = "0.1.0-alpha.18"
 dependencies = [
  "alloy-chains",
  "async-trait",
- "reth-discv4",
- "reth-eth-wire",
  "reth-primitives",
  "reth-rpc-types",
  "serde",
@@ -6622,7 +6606,6 @@ dependencies = [
  "reth-db",
  "reth-interfaces",
  "reth-metrics",
- "reth-nippy-jar",
  "reth-node-api",
  "reth-primitives",
  "reth-trie",
@@ -6661,7 +6644,6 @@ dependencies = [
 name = "reth-revm"
 version = "0.1.0-alpha.18"
 dependencies = [
- "reth-consensus-common",
  "reth-interfaces",
  "reth-node-api",
  "reth-node-ethereum",

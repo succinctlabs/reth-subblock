@@ -15,9 +15,8 @@ workspace = true
 # reth
 reth-primitives.workspace = true
 reth-interfaces.workspace = true
-reth-db.workspace = true
+reth-db = { workspace = true, default-features = false }
 reth-trie.workspace = true
-reth-nippy-jar.workspace = true
 reth-node-api.workspace = true
 
 revm.workspace = true

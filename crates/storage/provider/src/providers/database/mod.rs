@@ -9,7 +9,7 @@ use crate::{
     PruneCheckpointReader, StageCheckpointReader, StateProviderBox, TransactionVariant,
     TransactionsProvider, WithdrawalsProvider,
 };
-use reth_db::{database::Database, init_db, models::StoredBlockBodyIndices, DatabaseEnv};
+use reth_db::{database::Database, models::StoredBlockBodyIndices};
 use reth_interfaces::{provider::ProviderResult, RethError, RethResult};
 use reth_node_api::ConfigureEvmEnv;
 use reth_primitives::{
@@ -66,17 +66,17 @@ impl<DB> ProviderFactory<DB> {
 
     /// Create new database provider by passing a path. [`ProviderFactory`] will own the database
     /// instance.
-    pub fn new_with_database_path<P: AsRef<Path>>(
-        path: P,
-        chain_spec: Arc<ChainSpec>,
-        args: DatabaseArguments,
-    ) -> RethResult<ProviderFactory<DatabaseEnv>> {
-        Ok(ProviderFactory::<DatabaseEnv> {
-            db: init_db(path, args).map_err(|e| RethError::Custom(e.to_string()))?,
-            chain_spec,
-            snapshot_provider: None,
-        })
-    }
+    // pub fn new_with_database_path<P: AsRef<Path>>(
+    //     path: P,
+    //     chain_spec: Arc<ChainSpec>,
+    //     args: DatabaseArguments,
+    // ) -> RethResult<ProviderFactory<DatabaseEnv>> {
+    //     Ok(ProviderFactory::<DatabaseEnv> {
+    //         db: init_db(path, args).map_err(|e| RethError::Custom(e.to_string()))?,
+    //         chain_spec,
+    //         snapshot_provider: None,
+    //     })
+    // }
 
     /// Database provider that comes with a shared snapshot provider.
     pub fn with_snapshots(

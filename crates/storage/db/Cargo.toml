@@ -17,7 +17,6 @@ reth-primitives.workspace = true
 reth-interfaces.workspace = true
 reth-codecs.workspace = true
 reth-libmdbx = { workspace = true, optional = true, features = ["return-borrowed", "read-tx-timeouts"] }
-reth-nippy-jar.workspace = true
 reth-tracing.workspace = true
 
 # codecs
@@ -31,7 +30,6 @@ metrics.workspace = true
 
 # misc
 bytes.workspace = true
-page_size = "0.6.0"
 thiserror.workspace = true
 tempfile = { workspace = true, optional = true }
 parking_lot.workspace = true
@@ -72,7 +70,7 @@ paste = "1.0"
 assert_matches.workspace = true
 
 [features]
-default = ["mdbx"]
+default = []
 test-utils = ["tempfile", "arbitrary"]
 mdbx = ["reth-libmdbx"]
 bench = []

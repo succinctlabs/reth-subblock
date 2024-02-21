@@ -36,8 +36,8 @@ use crate::{
 use reth_primitives::{
     stage::StageCheckpoint,
     trie::{StorageTrieEntry, StoredBranchNode, StoredNibbles, StoredNibblesSubKey},
-    Account, Address, BlockHash, BlockNumber, Bytecode, Header, IntegerList, PruneCheckpoint,
-    PruneSegment, Receipt, StorageEntry, TransactionSignedNoHash, TxHash, TxNumber, B256,
+    Account, Address, BlockHash, BlockNumber, Bytecode, Header, PruneCheckpoint, PruneSegment,
+    Receipt, StorageEntry, TransactionSignedNoHash, TxHash, TxNumber, B256,
 };
 use std::fmt;
 
@@ -306,7 +306,7 @@ tables! {
     /// * If there were no shard we would get `None` entry or entry of different storage key.
     ///
     /// Code example can be found in `reth_provider::HistoricalStateProviderRef`
-    table AccountHistory<Key = ShardedKey<Address>, Value = BlockNumberList>;
+    table AccountHistory<Key = ShardedKey<Address>, Value = B256>;
 
     /// Stores pointers to block number changeset with changes for each storage key.
     ///
@@ -326,7 +326,7 @@ tables! {
     /// * If there were no shard we would get `None` entry or entry of different storage key.
     ///
     /// Code example can be found in `reth_provider::HistoricalStateProviderRef`
-    table StorageHistory<Key = StorageShardedKey, Value = BlockNumberList>;
+    table StorageHistory<Key = StorageShardedKey, Value = B256>;
 
     /// Stores the state of an account before a certain transaction changed it.
     /// Change on state can be: account is created, selfdestructed, touched while empty
@@ -373,8 +373,8 @@ tables! {
 
 // Alias types.
 
-/// List with transaction numbers.
-pub type BlockNumberList = IntegerList;
+// /// List with transaction numbers.
+// pub type BlockNumberList = IntegerList;
 
 /// Encoded stage id.
 pub type StageId = String;

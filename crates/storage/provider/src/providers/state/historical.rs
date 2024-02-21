@@ -8,7 +8,6 @@ use reth_db::{
     table::Table,
     tables,
     transaction::DbTx,
-    BlockNumberList,
 };
 use reth_interfaces::provider::ProviderResult;
 use reth_primitives::{
@@ -121,61 +120,61 @@ impl<'b, TX: DbTx> HistoricalStateProviderRef<'b, TX> {
         Ok(HashedPostState::from_revert_range(self.tx, self.block_number..=tip)?)
     }
 
-    fn history_info<T, K>(
-        &self,
-        key: K,
-        key_filter: impl Fn(&K) -> bool,
-        lowest_available_block_number: Option<BlockNumber>,
-    ) -> ProviderResult<HistoryInfo>
-    where
-        T: Table<Key = K, Value = BlockNumberList>,
-    {
-        let mut cursor = self.tx.cursor_read::<T>()?;
+    // fn history_info<T, K>(
+    //     &self,
+    //     key: K,
+    //     key_filter: impl Fn(&K) -> bool,
+    //     lowest_available_block_number: Option<BlockNumber>,
+    // ) -> ProviderResult<HistoryInfo>
+    // where
+    //     T: Table<Key = K, Value = BlockNumberList>,
+    // {
+    //     let mut cursor = self.tx.cursor_read::<T>()?;
 
-        // Lookup the history chunk in the history index. If they key does not appear in the
-        // index, the first chunk for the next key will be returned so we filter out chunks that
-        // have a different key.
-        if let Some(chunk) = cursor.seek(key)?.filter(|(key, _)| key_filter(key)).map(|x| x.1 .0) {
-            let chunk = chunk.enable_rank();
+    //     // Lookup the history chunk in the history index. If they key does not appear in the
+    //     // index, the first chunk for the next key will be returned so we filter out chunks that
+    //     // have a different key.
+    //     if let Some(chunk) = cursor.seek(key)?.filter(|(key, _)| key_filter(key)).map(|x| x.1 .0)
+    // {         let chunk = chunk.enable_rank();
 
-            // Get the rank of the first entry after our block.
-            let rank = chunk.rank(self.block_number as usize);
+    //         // Get the rank of the first entry after our block.
+    //         let rank = chunk.rank(self.block_number as usize);
 
-            // If our block is before the first entry in the index chunk and this first entry
-            // doesn't equal to our block, it might be before the first write ever. To check, we
-            // look at the previous entry and check if the key is the same.
-            // This check is worth it, the `cursor.prev()` check is rarely triggered (the if will
-            // short-circuit) and when it passes we save a full seek into the changeset/plain state
-            // table.
-            if rank == 0 &&
-                chunk.select(rank) as u64 != self.block_number &&
-                !cursor.prev()?.is_some_and(|(key, _)| key_filter(&key))
-            {
-                if lowest_available_block_number.is_some() {
-                    // The key may have been written, but due to pruning we may not have changesets
-                    // and history, so we need to make a changeset lookup.
-                    Ok(HistoryInfo::InChangeset(chunk.select(rank) as u64))
-                } else {
-                    // The key is written to, but only after our block.
-                    Ok(HistoryInfo::NotYetWritten)
-                }
-            } else if rank < chunk.len() {
-                // The chunk contains an entry for a write after our block, return it.
-                Ok(HistoryInfo::InChangeset(chunk.select(rank) as u64))
-            } else {
-                // The chunk does not contain an entry for a write after our block. This can only
-                // happen if this is the last chunk and so we need to look in the plain state.
-                Ok(HistoryInfo::InPlainState)
-            }
-        } else if lowest_available_block_number.is_some() {
-            // The key may have been written, but due to pruning we may not have changesets and
-            // history, so we need to make a plain state lookup.
-            Ok(HistoryInfo::MaybeInPlainState)
-        } else {
-            // The key has not been written to at all.
-            Ok(HistoryInfo::NotYetWritten)
-        }
-    }
+    //         // If our block is before the first entry in the index chunk and this first entry
+    //         // doesn't equal to our block, it might be before the first write ever. To check, we
+    //         // look at the previous entry and check if the key is the same.
+    //         // This check is worth it, the `cursor.prev()` check is rarely triggered (the if will
+    //         // short-circuit) and when it passes we save a full seek into the changeset/plain
+    // state         // table.
+    //         if rank == 0 &&
+    //             chunk.select(rank) as u64 != self.block_number &&
+    //             !cursor.prev()?.is_some_and(|(key, _)| key_filter(&key))
+    //         {
+    //             if lowest_available_block_number.is_some() {
+    //                 // The key may have been written, but due to pruning we may not have
+    // changesets                 // and history, so we need to make a changeset lookup.
+    //                 Ok(HistoryInfo::InChangeset(chunk.select(rank) as u64))
+    //             } else {
+    //                 // The key is written to, but only after our block.
+    //                 Ok(HistoryInfo::NotYetWritten)
+    //             }
+    //         } else if rank < chunk.len() {
+    //             // The chunk contains an entry for a write after our block, return it.
+    //             Ok(HistoryInfo::InChangeset(chunk.select(rank) as u64))
+    //         } else {
+    //             // The chunk does not contain an entry for a write after our block. This can only
+    //             // happen if this is the last chunk and so we need to look in the plain state.
+    //             Ok(HistoryInfo::InPlainState)
+    //         }
+    //     } else if lowest_available_block_number.is_some() {
+    //         // The key may have been written, but due to pruning we may not have changesets and
+    //         // history, so we need to make a plain state lookup.
+    //         Ok(HistoryInfo::MaybeInPlainState)
+    //     } else {
+    //         // The key has not been written to at all.
+    //         Ok(HistoryInfo::NotYetWritten)
+    //     }
+    // }
 }
 
 impl<'b, TX: DbTx> AccountReader for HistoricalStateProviderRef<'b, TX> {
