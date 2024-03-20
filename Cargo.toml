@@ -170,8 +170,8 @@ reth-transaction-pool = { path = "crates/transaction-pool" }
 reth-trie = { path = "crates/trie" }
 
 # revm
-revm = { git = "https://github.com/sp1-patches/revm", branch = "john/v5.0.0-patched", features = ["std"], default-features = false }
-revm-primitives = { git = "https://github.com/sp1-patches/revm.git", branch = "john/v5.0.0-patched", features = ["std"], default-features = false}
+revm = { git = "https://github.com/sp1-patches/revm", branch = "patch-v5.0.0", features = ["std"], default-features = false }
+revm-primitives = { git = "https://github.com/sp1-patches/revm.git", branch = "patch-v5.0.0", features = ["std"], default-features = false}
 revm-inspectors = { git = "https://github.com/paradigmxyz/evm-inspectors", rev = "8f17f34" }
 
 # eth

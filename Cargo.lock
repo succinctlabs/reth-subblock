@@ -5811,7 +5811,7 @@ dependencies = [
  "reth-revm",
  "reth-tasks",
  "reth-transaction-pool",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "tokio",
  "tracing",
 ]
@@ -6134,7 +6134,7 @@ dependencies = [
  "reth-provider",
  "reth-revm",
  "reth-transaction-pool",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "tracing",
 ]
 
@@ -6349,7 +6349,7 @@ version = "0.1.0-alpha.18"
 dependencies = [
  "reth-primitives",
  "reth-rpc-types",
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "serde",
  "thiserror",
 ]
@@ -6496,7 +6496,7 @@ dependencies = [
  "reth-provider",
  "reth-revm",
  "reth-transaction-pool",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "thiserror",
  "tracing",
 ]
@@ -6518,8 +6518,8 @@ dependencies = [
  "reth-rpc-types-compat",
  "reth-tasks",
  "reth-transaction-pool",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "serde",
  "sha2",
  "thiserror",
@@ -6573,8 +6573,8 @@ dependencies = [
  "reth-codecs",
  "reth-ethereum-forks",
  "reth-rpc-types",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "serde",
  "serde_json",
  "sha2",
@@ -6609,7 +6609,7 @@ dependencies = [
  "reth-node-api",
  "reth-primitives",
  "reth-trie",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "strum 0.26.1",
  "tempfile",
  "tokio",
@@ -6651,7 +6651,7 @@ dependencies = [
  "reth-primitives",
  "reth-provider",
  "reth-trie",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "revm-inspectors",
  "tracing",
 ]
@@ -6697,9 +6697,9 @@ dependencies = [
  "reth-rpc-types-compat",
  "reth-tasks",
  "reth-transaction-pool",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "revm-inspectors",
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "schnellru",
  "secp256k1 0.27.0",
  "serde",
@@ -6893,7 +6893,7 @@ dependencies = [
  "reth-revm",
  "reth-tokio-util",
  "reth-trie",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "serde",
  "serde_json",
  "thiserror",
@@ -6964,7 +6964,7 @@ dependencies = [
  "reth-revm",
  "reth-tasks",
  "reth-tracing",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "schnellru",
  "serde",
  "serde_json",
@@ -6990,7 +6990,7 @@ dependencies = [
  "reth-interfaces",
  "reth-primitives",
  "reth-provider",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "serde_json",
  "similar-asserts",
  "thiserror",
@@ -7017,12 +7017,12 @@ dependencies = [
 [[package]]
 name = "revm"
 version = "5.0.0"
-source = "git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
+source = "git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
 dependencies = [
  "auto_impl",
  "cfg-if",
- "revm-interpreter 2.1.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
- "revm-precompile 4.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm-interpreter 2.1.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm-precompile 4.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "serde",
  "serde_json",
 ]
@@ -7057,9 +7057,9 @@ dependencies = [
 [[package]]
 name = "revm-interpreter"
 version = "2.1.0"
-source = "git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
+source = "git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
 dependencies = [
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "serde",
 ]
 
@@ -7083,7 +7083,7 @@ dependencies = [
 [[package]]
 name = "revm-precompile"
 version = "4.0.0"
-source = "git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
+source = "git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
 dependencies = [
  "anyhow",
  "aurora-engine-modexp",
@@ -7091,7 +7091,7 @@ dependencies = [
  "c-kzg",
  "k256",
  "once_cell",
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched)",
+ "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
  "ripemd",
  "secp256k1 0.28.2",
  "sha2",
@@ -7119,7 +7119,7 @@ dependencies = [
 [[package]]
 name = "revm-primitives"
 version = "2.0.0"
-source = "git+https://github.com/sp1-patches/revm?branch=john/v5.0.0-patched#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
+source = "git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
 dependencies = [
  "alloy-primitives",
  "auto_impl",
