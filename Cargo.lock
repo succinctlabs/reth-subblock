@@ -1194,9 +1194,9 @@ dependencies = [
 
 [[package]]
 name = "c-kzg"
-version = "0.4.1"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9d8c306be83ec04bf5f73710badd8edf56dea23f2f0d8b7f9fe4644d371c758"
+checksum = "3130f3d8717cc02e668a896af24984d5d5d4e8bf12e278e982e0f1bd88a0f9af"
 dependencies = [
  "blst",
  "cc",
@@ -5811,7 +5811,7 @@ dependencies = [
  "reth-revm",
  "reth-tasks",
  "reth-transaction-pool",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
  "tokio",
  "tracing",
 ]
@@ -6134,7 +6134,7 @@ dependencies = [
  "reth-provider",
  "reth-revm",
  "reth-transaction-pool",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
  "tracing",
 ]
 
@@ -6349,7 +6349,7 @@ version = "0.1.0-alpha.18"
 dependencies = [
  "reth-primitives",
  "reth-rpc-types",
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm-primitives",
  "serde",
  "thiserror",
 ]
@@ -6496,7 +6496,7 @@ dependencies = [
  "reth-provider",
  "reth-revm",
  "reth-transaction-pool",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
  "thiserror",
  "tracing",
 ]
@@ -6518,8 +6518,8 @@ dependencies = [
  "reth-rpc-types-compat",
  "reth-tasks",
  "reth-transaction-pool",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
+ "revm-primitives",
  "serde",
  "sha2",
  "thiserror",
@@ -6573,8 +6573,8 @@ dependencies = [
  "reth-codecs",
  "reth-ethereum-forks",
  "reth-rpc-types",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
+ "revm-primitives",
  "serde",
  "serde_json",
  "sha2",
@@ -6609,7 +6609,7 @@ dependencies = [
  "reth-node-api",
  "reth-primitives",
  "reth-trie",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
  "strum 0.26.1",
  "tempfile",
  "tokio",
@@ -6651,7 +6651,7 @@ dependencies = [
  "reth-primitives",
  "reth-provider",
  "reth-trie",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
  "revm-inspectors",
  "tracing",
 ]
@@ -6697,9 +6697,9 @@ dependencies = [
  "reth-rpc-types-compat",
  "reth-tasks",
  "reth-transaction-pool",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
  "revm-inspectors",
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm-primitives",
  "schnellru",
  "secp256k1 0.27.0",
  "serde",
@@ -6893,7 +6893,7 @@ dependencies = [
  "reth-revm",
  "reth-tokio-util",
  "reth-trie",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
  "serde",
  "serde_json",
  "thiserror",
@@ -6964,7 +6964,7 @@ dependencies = [
  "reth-revm",
  "reth-tasks",
  "reth-tracing",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
  "schnellru",
  "serde",
  "serde_json",
@@ -6990,7 +6990,7 @@ dependencies = [
  "reth-interfaces",
  "reth-primitives",
  "reth-provider",
- "revm 5.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm",
  "serde_json",
  "similar-asserts",
  "thiserror",
@@ -7003,26 +7003,12 @@ dependencies = [
 [[package]]
 name = "revm"
 version = "5.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "266f86bdefa6dac07d92e2f5c37d7d183f2575b2f9e0ee9cba9402dfde912524"
+source = "git+https://github.com/sp1-patches/revm.git?branch=patch-v5.0.0#02a56d03d067e9e6c67852c10cd2d4807f86ffaa"
 dependencies = [
  "auto_impl",
  "cfg-if",
- "revm-interpreter 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "revm-precompile 4.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "revm"
-version = "5.0.0"
-source = "git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
-dependencies = [
- "auto_impl",
- "cfg-if",
- "revm-interpreter 2.1.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
- "revm-precompile 4.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm-interpreter",
+ "revm-precompile",
  "serde",
  "serde_json",
 ]
@@ -7030,7 +7016,7 @@ dependencies = [
 [[package]]
 name = "revm-inspectors"
 version = "0.1.0"
-source = "git+https://github.com/paradigmxyz/evm-inspectors?rev=8f17f34#8f17f34da5fec043378e689bb9e4169453371c38"
+source = "git+https://github.com/sp1-patches/evm-inspectors?branch=patch-v0.1.0#3a3b8a7cebe99ee23f0c5a48a7d1f145f8199f99"
 dependencies = [
  "alloy-primitives",
  "alloy-rpc-trace-types",
@@ -7038,7 +7024,7 @@ dependencies = [
  "alloy-sol-types",
  "boa_engine",
  "boa_gc",
- "revm 5.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "revm",
  "serde",
  "serde_json",
  "thiserror",
@@ -7047,43 +7033,16 @@ dependencies = [
 [[package]]
 name = "revm-interpreter"
 version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a80b516cc706630e604e2fd47c281501d2fb222712be4328921361388b7d2df"
+source = "git+https://github.com/sp1-patches/revm.git?branch=patch-v5.0.0#02a56d03d067e9e6c67852c10cd2d4807f86ffaa"
 dependencies = [
- "revm-primitives 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde",
-]
-
-[[package]]
-name = "revm-interpreter"
-version = "2.1.0"
-source = "git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
-dependencies = [
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm-primitives",
  "serde",
 ]
 
 [[package]]
 name = "revm-precompile"
 version = "4.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6912fafe7f70a264ec5895875ce2f2d0621a39263844280c9ee7f85e35bbb9e"
-dependencies = [
- "aurora-engine-modexp",
- "c-kzg",
- "k256",
- "once_cell",
- "revm-primitives 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "ripemd",
- "secp256k1 0.28.2",
- "sha2",
- "substrate-bn",
-]
-
-[[package]]
-name = "revm-precompile"
-version = "4.0.0"
-source = "git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
+source = "git+https://github.com/sp1-patches/revm.git?branch=patch-v5.0.0#02a56d03d067e9e6c67852c10cd2d4807f86ffaa"
 dependencies = [
  "anyhow",
  "aurora-engine-modexp",
@@ -7091,7 +7050,7 @@ dependencies = [
  "c-kzg",
  "k256",
  "once_cell",
- "revm-primitives 2.0.0 (git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0)",
+ "revm-primitives",
  "ripemd",
  "secp256k1 0.28.2",
  "sha2",
@@ -7102,24 +7061,7 @@ dependencies = [
 [[package]]
 name = "revm-primitives"
 version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b3683a40f1e94e7389c8e81e5f26bb5d30875ed0b48ab07985ec32eb6d6c712"
-dependencies = [
- "alloy-primitives",
- "auto_impl",
- "bitflags 2.4.2",
- "bitvec",
- "cfg-if",
- "enumn",
- "hashbrown 0.14.3",
- "hex",
- "serde",
-]
-
-[[package]]
-name = "revm-primitives"
-version = "2.0.0"
-source = "git+https://github.com/sp1-patches/revm?branch=patch-v5.0.0#c993e0d60b49e4ee97a160ac4629a4e63f2a2e69"
+source = "git+https://github.com/sp1-patches/revm.git?branch=patch-v5.0.0#02a56d03d067e9e6c67852c10cd2d4807f86ffaa"
 dependencies = [
  "alloy-primitives",
  "auto_impl",
@@ -7975,7 +7917,7 @@ dependencies = [
 [[package]]
 name = "sp1-precompiles"
 version = "0.1.0"
-source = "git+https://github.com/succinctlabs/sp1.git#cf58553c9ba6811d597b3871fbdbaa7849cdfee2"
+source = "git+https://github.com/succinctlabs/sp1.git#0d5a6c3e83b809bd1d5270b995d620a57fc062f4"
 dependencies = [
  "anyhow",
  "bincode",
