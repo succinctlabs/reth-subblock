@@ -170,13 +170,19 @@ reth-transaction-pool = { path = "crates/transaction-pool" }
 reth-trie = { path = "crates/trie" }
 
 # revm
-revm = { git = "https://github.com/sp1-patches/revm.git", branch = "patch-v5.0.0", features = ["std"], default-features = false }
-revm-primitives = { git = "https://github.com/sp1-patches/revm.git", branch = "patch-v5.0.0", features = ["std"], default-features = false}
-revm-precompile = { git = "https://github.com/sp1-patches/revm.git", branch = "patch-v5.0.0", features = ["std"], default-features = false}
+revm = { git = "https://github.com/sp1-patches/revm.git", branch = "patch-v5.0.0", features = [
+    "std",
+], default-features = false }
+revm-primitives = { git = "https://github.com/sp1-patches/revm.git", branch = "patch-v5.0.0", features = [
+    "std",
+], default-features = false }
+revm-precompile = { git = "https://github.com/sp1-patches/revm.git", branch = "patch-v5.0.0", features = [
+    "std",
+], default-features = false }
 revm-inspectors = { git = "https://github.com/sp1-patches/evm-inspectors", branch = "patch-v0.1.0" }
 
 # eth
-alloy-chains = { version = "0.1", feature = ["serde", "rlp", "arbitrary"] }
+alloy-chains = { version = "0.1.17", feature = ["serde", "rlp", "arbitrary"] }
 alloy-primitives = "0.6"
 alloy-dyn-abi = "0.6"
 alloy-sol-types = "0.6"
