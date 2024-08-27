@@ -5,7 +5,7 @@ use crate::{
     TransactionSigned, TransactionSignedEcRecovered, TransactionSignedNoHash, TxEip1559, TxEip2930,
     TxEip4844, TxLegacy, TxType,
 };
-use alloy_primitives::TxKind;
+use alloy_primitives::{TxKind, U256};
 use alloy_rlp::Error as RlpError;
 
 #[cfg(not(feature = "std"))]
@@ -32,7 +32,13 @@ impl TryFrom<alloy_rpc_types::Block> for Block {
                                 s: signature.s,
                                 odd_y_parity: signature
                                     .y_parity
-                                    .unwrap_or_else(|| alloy_rpc_types::Parity(!signature.v.bit(0)))
+                                    .unwrap_or_else(|| {
+                                        alloy_rpc_types::Parity(if signature.v > U256::from(1u32) {
+                                            !signature.v.bit(0)
+                                        } else {
+                                            signature.v == U256::from(1u32)
+                                        })
+                                    })
                                     .0,
                             },
                         ))
