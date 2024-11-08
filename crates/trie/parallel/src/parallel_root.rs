@@ -4,6 +4,7 @@ use crate::{stats::ParallelTrieTracker, storage_root_targets::StorageRootTargets
 use alloy_primitives::B256;
 use alloy_rlp::{BufMut, Encodable};
 use itertools::Itertools;
+use reth_db::transaction::DbTx;
 use reth_execution_errors::StorageRootError;
 use reth_provider::{
     providers::ConsistentDbView, BlockReader, DBProvider, DatabaseProviderFactory, ProviderError,
@@ -110,7 +111,7 @@ where
                         DatabaseHashedCursorFactory::new(provider_ro.tx_ref()),
                         &hashed_state_sorted,
                     );
-                    Ok(StorageRoot::new_hashed(
+                    let result = StorageRoot::new_hashed(
                         trie_cursor_factory,
                         hashed_state,
                         hashed_address,
@@ -118,7 +119,10 @@ where
                         metrics,
                     )
                     .with_prefix_set(prefix_set)
-                    .calculate(retain_updates)?)
+                    .calculate(retain_updates)?;
+                    // abort instead of commit
+                    provider_ro.into_tx().abort();
+                    Ok(result)
                 })();
                 let _ = tx.send(result);
             });
