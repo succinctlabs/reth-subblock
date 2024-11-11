@@ -39,6 +39,7 @@ proptest.workspace = true
 proptest-arbitrary-interop.workspace = true
 hash-db = "=0.15.2"
 plain_hasher = "0.2"
+alloy-primitives = { workspace = true, features = ["getrandom"] }
 
 [features]
 test-utils = [

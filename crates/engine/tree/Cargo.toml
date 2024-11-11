@@ -21,6 +21,7 @@ reth-chainspec.workspace = true
 reth-engine-primitives.workspace = true
 reth-errors.workspace = true
 reth-evm.workspace = true
+reth-execution-errors.workspace = true
 reth-network-p2p.workspace = true
 reth-payload-builder.workspace = true
 reth-payload-primitives.workspace = true
@@ -32,12 +33,14 @@ reth-revm.workspace = true
 reth-stages-api.workspace = true
 reth-tasks.workspace = true
 reth-trie.workspace = true
+reth-trie-db.workspace = true
 reth-trie-parallel.workspace = true
 
 # alloy
 alloy-primitives.workspace = true
 alloy-eips.workspace = true
 alloy-rpc-types-engine.workspace = true
+alloy-rlp.workspace = true
 
 revm-primitives.workspace = true
 
@@ -51,6 +54,7 @@ metrics.workspace = true
 reth-metrics = { workspace = true, features = ["common"] }
 
 # misc
+rayon.workspace = true
 tracing.workspace = true
 
 # optional deps for test-utils
@@ -104,5 +108,6 @@ test-utils = [
 	"reth-stages-api/test-utils",
 	"reth-provider/test-utils",
 	"reth-trie/test-utils",
-	"reth-prune-types?/test-utils"
+	"reth-prune-types?/test-utils",
+  "reth-trie-db/test-utils"
 ]
