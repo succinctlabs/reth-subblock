@@ -1,7 +1,7 @@
 use crate::{BlockNumReader, DatabaseProviderFactory, HeaderProvider};
 use alloy_primitives::B256;
 use reth_errors::ProviderError;
-use reth_primitives::GotExpected;
+// use reth_primitives::GotExpected;
 use reth_storage_api::{BlockReader, DBProvider};
 use reth_storage_errors::provider::ProviderResult;
 
@@ -28,6 +28,7 @@ pub use reth_storage_errors::provider::ConsistentViewError;
 #[derive(Clone, Debug)]
 pub struct ConsistentDbView<Factory> {
     factory: Factory,
+    #[allow(dead_code)]
     tip: Option<B256>,
 }
 
