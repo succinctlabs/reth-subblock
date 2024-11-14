@@ -5,6 +5,7 @@ use core::fmt::Display;
 use crate::{
     execute::{BatchExecutor, BlockExecutorProvider, Executor},
     system_calls::OnStateHook,
+    ConfigureEvmEnv,
 };
 use alloy_primitives::BlockNumber;
 use reth_execution_errors::BlockExecutionError;
@@ -23,15 +24,18 @@ where
     A: BlockExecutorProvider,
     B: BlockExecutorProvider,
 {
-    type Executor<DB: Database<Error: Into<ProviderError> + Display>> =
-        Either<A::Executor<DB>, B::Executor<DB>>;
+    type Executor<DB: Database<Error: Into<ProviderError> + Display>, EvmConfig: ConfigureEvmEnv> =
+        Either<A::Executor<DB, EvmConfig>, B::Executor<DB, EvmConfig>>;
 
-    type BatchExecutor<DB: Database<Error: Into<ProviderError> + Display>> =
-        Either<A::BatchExecutor<DB>, B::BatchExecutor<DB>>;
+    type BatchExecutor<
+        DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv,
+    > = Either<A::BatchExecutor<DB, EvmConfig>, B::BatchExecutor<DB, EvmConfig>>;
 
-    fn executor<DB>(&self, db: DB) -> Self::Executor<DB>
+    fn executor<DB, EvmConfig>(&self, db: DB) -> Self::Executor<DB, EvmConfig>
     where
         DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv,
     {
         match self {
             Self::Left(a) => Either::Left(a.executor(db)),
@@ -39,9 +43,10 @@ where
         }
     }
 
-    fn batch_executor<DB>(&self, db: DB) -> Self::BatchExecutor<DB>
+    fn batch_executor<DB, EvmConfig>(&self, db: DB) -> Self::BatchExecutor<DB, EvmConfig>
     where
         DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv,
     {
         match self {
             Self::Left(a) => Either::Left(a.batch_executor(db)),
@@ -50,21 +55,24 @@ where
     }
 }
 
-impl<A, B, DB> Executor<DB> for Either<A, B>
+impl<A, B, DB, EvmConfig> Executor<DB, EvmConfig> for Either<A, B>
 where
     A: for<'a> Executor<
         DB,
+        EvmConfig,
         Input<'a> = BlockExecutionInput<'a, BlockWithSenders>,
         Output = BlockExecutionOutput<Receipt>,
         Error = BlockExecutionError,
     >,
     B: for<'a> Executor<
         DB,
+        EvmConfig,
         Input<'a> = BlockExecutionInput<'a, BlockWithSenders>,
         Output = BlockExecutionOutput<Receipt>,
         Error = BlockExecutionError,
     >,
     DB: Database<Error: Into<ProviderError> + Display>,
+    EvmConfig: ConfigureEvmEnv,
 {
     type Input<'a> = BlockExecutionInput<'a, BlockWithSenders>;
     type Output = BlockExecutionOutput<Receipt>;
@@ -106,25 +114,35 @@ where
     }
 }
 
-impl<A, B, DB> BatchExecutor<DB> for Either<A, B>
+impl<A, B, DB, EvmConfig> BatchExecutor<DB, EvmConfig> for Either<A, B>
 where
     A: for<'a> BatchExecutor<
         DB,
+        EvmConfig,
         Input<'a> = BlockExecutionInput<'a, BlockWithSenders>,
         Output = ExecutionOutcome,
         Error = BlockExecutionError,
     >,
     B: for<'a> BatchExecutor<
         DB,
+        EvmConfig,
         Input<'a> = BlockExecutionInput<'a, BlockWithSenders>,
         Output = ExecutionOutcome,
         Error = BlockExecutionError,
     >,
     DB: Database<Error: Into<ProviderError> + Display>,
+    EvmConfig: ConfigureEvmEnv,
 {
     type Input<'a> = BlockExecutionInput<'a, BlockWithSenders>;
     type Output = ExecutionOutcome;
     type Error = BlockExecutionError;
+
+    fn init(&mut self, evm_config: EvmConfig) {
+        match self {
+            Self::Left(a) => a.init(evm_config),
+            Self::Right(b) => b.init(evm_config),
+        }
+    }
 
     fn execute_and_verify_one(&mut self, input: Self::Input<'_>) -> Result<(), Self::Error> {
         match self {

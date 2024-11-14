@@ -8,7 +8,7 @@ pub use reth_execution_types::{BlockExecutionInput, BlockExecutionOutput, Execut
 pub use reth_storage_errors::provider::ProviderError;
 use revm::db::states::bundle_state::BundleRetention;
 
-use crate::system_calls::OnStateHook;
+use crate::{system_calls::OnStateHook, ConfigureEvmEnv};
 use alloc::{boxed::Box, vec::Vec};
 use alloy_eips::eip7685::Requests;
 use alloy_primitives::BlockNumber;
@@ -24,13 +24,16 @@ use revm_primitives::{db::Database, U256};
 /// (e.g. state changes and receipts).
 ///
 /// This executor does not validate the output, see [`BatchExecutor`] for that.
-pub trait Executor<DB> {
+pub trait Executor<DB, EvmConfig: ConfigureEvmEnv> {
     /// The input type for the executor.
     type Input<'a>;
     /// The output type for the executor.
     type Output;
     /// The error type returned by the executor.
     type Error;
+
+    /// Initializes the executor.
+    fn init(&mut self, _evm_config: EvmConfig) {}
 
     /// Consumes the type and executes the block.
     ///
@@ -65,13 +68,16 @@ pub trait Executor<DB> {
 
 /// A general purpose executor that can execute multiple inputs in sequence, validate the outputs,
 /// and keep track of the state over the entire batch.
-pub trait BatchExecutor<DB> {
+pub trait BatchExecutor<DB, EvmConfig: ConfigureEvmEnv> {
     /// The input type for the executor.
     type Input<'a>;
     /// The output type for the executor.
     type Output;
     /// The error type returned by the executor.
     type Error;
+
+    /// Initializes the batch executor.
+    fn init(&mut self, _evm_config: EvmConfig) {}
 
     /// Executes the next block in the batch, verifies the output and updates the state internally.
     fn execute_and_verify_one(&mut self, input: Self::Input<'_>) -> Result<(), Self::Error>;
@@ -136,16 +142,18 @@ pub trait BlockExecutorProvider: Send + Sync + Clone + Unpin + 'static {
     ///
     /// It is not expected to validate the state trie root, this must be done by the caller using
     /// the returned state.
-    type Executor<DB: Database<Error: Into<ProviderError> + Display>>: for<'a> Executor<
-        DB,
+    type Executor<DB: Database<Error: Into<ProviderError> + Display>, EvmConfig: ConfigureEvmEnv>: for<'a> Executor<
+            DB,
+        EvmConfig,
         Input<'a> = BlockExecutionInput<'a, BlockWithSenders>,
         Output = BlockExecutionOutput<Receipt>,
         Error = BlockExecutionError,
     >;
 
     /// An executor that can execute a batch of blocks given a database.
-    type BatchExecutor<DB: Database<Error: Into<ProviderError> + Display>>: for<'a> BatchExecutor<
-        DB,
+    type BatchExecutor<DB: Database<Error: Into<ProviderError> + Display>, EvmConfig: ConfigureEvmEnv>: for<'a> BatchExecutor<
+            DB,
+        EvmConfig,
         Input<'a> = BlockExecutionInput<'a, BlockWithSenders>,
         Output = ExecutionOutcome,
         Error = BlockExecutionError,
@@ -154,17 +162,19 @@ pub trait BlockExecutorProvider: Send + Sync + Clone + Unpin + 'static {
     /// Creates a new executor for single block execution.
     ///
     /// This is used to execute a single block and get the changed state.
-    fn executor<DB>(&self, db: DB) -> Self::Executor<DB>
+    fn executor<DB, EvmConfig>(&self, db: DB) -> Self::Executor<DB, EvmConfig>
     where
-        DB: Database<Error: Into<ProviderError> + Display>;
+        DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv;
 
     /// Creates a new batch executor with the given database and pruning modes.
     ///
     /// Batch executor is used to execute multiple blocks in sequence and keep track of the state
     /// during historical sync which involves executing multiple blocks in sequence.
-    fn batch_executor<DB>(&self, db: DB) -> Self::BatchExecutor<DB>
+    fn batch_executor<DB, EvmConfig>(&self, db: DB) -> Self::BatchExecutor<DB, EvmConfig>
     where
-        DB: Database<Error: Into<ProviderError> + Display>;
+        DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv;
 }
 
 /// Helper type for the output of executing a block.
@@ -177,12 +187,16 @@ pub struct ExecuteOutput {
 }
 
 /// Defines the strategy for executing a single block.
-pub trait BlockExecutionStrategy<DB>
+pub trait BlockExecutionStrategy<DB, EvmConfig>
 where
     DB: Database,
+    EvmConfig: ConfigureEvmEnv,
 {
     /// The error type returned by this strategy's methods.
     type Error: From<ProviderError> + core::error::Error;
+
+    /// Initializes the strategy.
+    fn init(&mut self, _evm_config: EvmConfig) {}
 
     /// Applies any necessary changes before executing the block's transactions.
     fn apply_pre_execution_changes(
@@ -235,15 +249,17 @@ where
 /// A strategy factory that can create block execution strategies.
 pub trait BlockExecutionStrategyFactory: Send + Sync + Clone + Unpin + 'static {
     /// Associated strategy type.
-    type Strategy<DB: Database<Error: Into<ProviderError> + Display>>: BlockExecutionStrategy<
-        DB,
+    type Strategy<DB: Database<Error: Into<ProviderError> + Display>, EvmConfig: ConfigureEvmEnv>: BlockExecutionStrategy<
+            DB,
+        EvmConfig,
         Error = BlockExecutionError,
     >;
 
     /// Creates a strategy using the give database.
-    fn create_strategy<DB>(&self, db: DB) -> Self::Strategy<DB>
+    fn create_strategy<DB, EvmConfig>(&self, db: DB) -> Self::Strategy<DB, EvmConfig>
     where
-        DB: Database<Error: Into<ProviderError> + Display>;
+        DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv;
 }
 
 impl<F> Clone for BasicBlockExecutorProvider<F>
@@ -272,23 +288,27 @@ impl<F> BlockExecutorProvider for BasicBlockExecutorProvider<F>
 where
     F: BlockExecutionStrategyFactory,
 {
-    type Executor<DB: Database<Error: Into<ProviderError> + Display>> =
-        BasicBlockExecutor<F::Strategy<DB>, DB>;
+    type Executor<DB: Database<Error: Into<ProviderError> + Display>, EvmConfig: ConfigureEvmEnv> =
+        BasicBlockExecutor<F::Strategy<DB, EvmConfig>, DB, EvmConfig>;
 
-    type BatchExecutor<DB: Database<Error: Into<ProviderError> + Display>> =
-        BasicBatchExecutor<F::Strategy<DB>, DB>;
+    type BatchExecutor<
+        DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv,
+    > = BasicBatchExecutor<F::Strategy<DB, EvmConfig>, DB, EvmConfig>;
 
-    fn executor<DB>(&self, db: DB) -> Self::Executor<DB>
+    fn executor<DB, EvmConfig>(&self, db: DB) -> Self::Executor<DB, EvmConfig>
     where
         DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv,
     {
         let strategy = self.strategy_factory.create_strategy(db);
         BasicBlockExecutor::new(strategy)
     }
 
-    fn batch_executor<DB>(&self, db: DB) -> Self::BatchExecutor<DB>
+    fn batch_executor<DB, EvmConfig>(&self, db: DB) -> Self::BatchExecutor<DB, EvmConfig>
     where
         DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv,
     {
         let strategy = self.strategy_factory.create_strategy(db);
         let batch_record = BlockBatchRecord::default();
@@ -299,35 +319,43 @@ where
 /// A generic block executor that uses a [`BlockExecutionStrategy`] to
 /// execute blocks.
 #[allow(missing_debug_implementations, dead_code)]
-pub struct BasicBlockExecutor<S, DB>
+pub struct BasicBlockExecutor<S, DB, EvmConfig>
 where
-    S: BlockExecutionStrategy<DB>,
+    S: BlockExecutionStrategy<DB, EvmConfig>,
     DB: Database,
+    EvmConfig: ConfigureEvmEnv,
 {
     /// Block execution strategy.
     pub(crate) strategy: S,
-    _phantom: PhantomData<DB>,
+    _phantom_db: PhantomData<DB>,
+    _phantom_ec: PhantomData<EvmConfig>,
 }
 
-impl<S, DB> BasicBlockExecutor<S, DB>
+impl<S, DB, EvmConfig> BasicBlockExecutor<S, DB, EvmConfig>
 where
-    S: BlockExecutionStrategy<DB>,
+    S: BlockExecutionStrategy<DB, EvmConfig>,
     DB: Database,
+    EvmConfig: ConfigureEvmEnv,
 {
     /// Creates a new `BasicBlockExecutor` with the given strategy.
     pub const fn new(strategy: S) -> Self {
-        Self { strategy, _phantom: PhantomData }
+        Self { strategy, _phantom_db: PhantomData, _phantom_ec: PhantomData }
     }
 }
 
-impl<S, DB> Executor<DB> for BasicBlockExecutor<S, DB>
+impl<S, DB, EvmConfig> Executor<DB, EvmConfig> for BasicBlockExecutor<S, DB, EvmConfig>
 where
-    S: BlockExecutionStrategy<DB>,
+    S: BlockExecutionStrategy<DB, EvmConfig>,
     DB: Database<Error: Into<ProviderError> + Display>,
+    EvmConfig: ConfigureEvmEnv,
 {
     type Input<'a> = BlockExecutionInput<'a, BlockWithSenders>;
     type Output = BlockExecutionOutput<Receipt>;
     type Error = S::Error;
+
+    fn init(&mut self, evm_config: EvmConfig) {
+        self.strategy.init(evm_config);
+    }
 
     fn execute(mut self, input: Self::Input<'_>) -> Result<Self::Output, Self::Error> {
         let BlockExecutionInput { block, total_difficulty } = input;
@@ -392,37 +420,45 @@ where
 /// A generic batch executor that uses a [`BlockExecutionStrategy`] to
 /// execute batches.
 #[allow(missing_debug_implementations)]
-pub struct BasicBatchExecutor<S, DB>
+pub struct BasicBatchExecutor<S, DB, EvmConfig>
 where
-    S: BlockExecutionStrategy<DB>,
+    S: BlockExecutionStrategy<DB, EvmConfig>,
     DB: Database,
+    EvmConfig: ConfigureEvmEnv,
 {
     /// Batch execution strategy.
     pub(crate) strategy: S,
     /// Keeps track of batch execution receipts and requests.
     pub(crate) batch_record: BlockBatchRecord,
-    _phantom: PhantomData<DB>,
+    _phantom_db: PhantomData<DB>,
+    _phantom_ec: PhantomData<EvmConfig>,
 }
 
-impl<S, DB> BasicBatchExecutor<S, DB>
+impl<S, DB, EvmConfig> BasicBatchExecutor<S, DB, EvmConfig>
 where
-    S: BlockExecutionStrategy<DB>,
+    S: BlockExecutionStrategy<DB, EvmConfig>,
     DB: Database,
+    EvmConfig: ConfigureEvmEnv,
 {
     /// Creates a new `BasicBatchExecutor` with the given strategy.
     pub const fn new(strategy: S, batch_record: BlockBatchRecord) -> Self {
-        Self { strategy, batch_record, _phantom: PhantomData }
+        Self { strategy, batch_record, _phantom_db: PhantomData, _phantom_ec: PhantomData }
     }
 }
 
-impl<S, DB> BatchExecutor<DB> for BasicBatchExecutor<S, DB>
+impl<S, DB, EvmConfig> BatchExecutor<DB, EvmConfig> for BasicBatchExecutor<S, DB, EvmConfig>
 where
-    S: BlockExecutionStrategy<DB, Error = BlockExecutionError>,
+    S: BlockExecutionStrategy<DB, EvmConfig, Error = BlockExecutionError>,
     DB: Database<Error: Into<ProviderError> + Display>,
+    EvmConfig: ConfigureEvmEnv,
 {
     type Input<'a> = BlockExecutionInput<'a, BlockWithSenders>;
     type Output = ExecutionOutcome;
     type Error = BlockExecutionError;
+
+    fn init(&mut self, evm_config: EvmConfig) {
+        self.strategy.init(evm_config);
+    }
 
     fn execute_and_verify_one(&mut self, input: Self::Input<'_>) -> Result<(), Self::Error> {
         let BlockExecutionInput { block, total_difficulty } = input;
@@ -477,6 +513,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_utils::TestEvmConfig;
     use alloy_primitives::U256;
     use reth_chainspec::{ChainSpec, MAINNET};
     use revm::db::{CacheDB, EmptyDBTyped};
@@ -487,27 +524,35 @@ mod tests {
     struct TestExecutorProvider;
 
     impl BlockExecutorProvider for TestExecutorProvider {
-        type Executor<DB: Database<Error: Into<ProviderError> + Display>> = TestExecutor<DB>;
-        type BatchExecutor<DB: Database<Error: Into<ProviderError> + Display>> = TestExecutor<DB>;
+        type Executor<
+            DB: Database<Error: Into<ProviderError> + Display>,
+            EvmConfig: ConfigureEvmEnv,
+        > = TestExecutor<DB, EvmConfig>;
+        type BatchExecutor<
+            DB: Database<Error: Into<ProviderError> + Display>,
+            EvmConfig: ConfigureEvmEnv,
+        > = TestExecutor<DB, EvmConfig>;
 
-        fn executor<DB>(&self, _db: DB) -> Self::Executor<DB>
+        fn executor<DB, EvmConfig>(&self, _db: DB) -> Self::Executor<DB, EvmConfig>
         where
             DB: Database<Error: Into<ProviderError> + Display>,
+            EvmConfig: ConfigureEvmEnv,
         {
-            TestExecutor(PhantomData)
+            TestExecutor(PhantomData, PhantomData)
         }
 
-        fn batch_executor<DB>(&self, _db: DB) -> Self::BatchExecutor<DB>
+        fn batch_executor<DB, EvmConfig>(&self, _db: DB) -> Self::BatchExecutor<DB, EvmConfig>
         where
             DB: Database<Error: Into<ProviderError> + Display>,
+            EvmConfig: ConfigureEvmEnv,
         {
-            TestExecutor(PhantomData)
+            TestExecutor(PhantomData, PhantomData)
         }
     }
 
-    struct TestExecutor<DB>(PhantomData<DB>);
+    struct TestExecutor<DB, EvmConfig>(PhantomData<DB>, PhantomData<EvmConfig>);
 
-    impl<DB> Executor<DB> for TestExecutor<DB> {
+    impl<DB, EvmConfig: ConfigureEvmEnv> Executor<DB, EvmConfig> for TestExecutor<DB, EvmConfig> {
         type Input<'a> = BlockExecutionInput<'a, BlockWithSenders>;
         type Output = BlockExecutionOutput<Receipt>;
         type Error = BlockExecutionError;
@@ -539,7 +584,7 @@ mod tests {
         }
     }
 
-    impl<DB> BatchExecutor<DB> for TestExecutor<DB> {
+    impl<DB, EvmConfig: ConfigureEvmEnv> BatchExecutor<DB, EvmConfig> for TestExecutor<DB, EvmConfig> {
         type Input<'a> = BlockExecutionInput<'a, BlockWithSenders>;
         type Output = ExecutionOutcome;
         type Error = BlockExecutionError;
@@ -584,12 +629,15 @@ mod tests {
     }
 
     impl BlockExecutionStrategyFactory for TestExecutorStrategyFactory {
-        type Strategy<DB: Database<Error: Into<ProviderError> + Display>> =
-            TestExecutorStrategy<DB, TestEvmConfig>;
+        type Strategy<
+            DB: Database<Error: Into<ProviderError> + Display>,
+            EvmConfig: ConfigureEvmEnv,
+        > = TestExecutorStrategy<DB, TestEvmConfig>;
 
-        fn create_strategy<DB>(&self, db: DB) -> Self::Strategy<DB>
+        fn create_strategy<DB, EvmConfig>(&self, db: DB) -> Self::Strategy<DB, EvmConfig>
         where
             DB: Database<Error: Into<ProviderError> + Display>,
+            EvmConfig: ConfigureEvmEnv,
         {
             let state = State::builder()
                 .with_database(db)
@@ -610,9 +658,11 @@ mod tests {
         }
     }
 
-    impl<DB> BlockExecutionStrategy<DB> for TestExecutorStrategy<DB, TestEvmConfig>
+    impl<DB, EvmConfig> BlockExecutionStrategy<DB, EvmConfig>
+        for TestExecutorStrategy<DB, TestEvmConfig>
     where
         DB: Database,
+        EvmConfig: ConfigureEvmEnv,
     {
         type Error = BlockExecutionError;
 
@@ -665,14 +715,11 @@ mod tests {
         }
     }
 
-    #[derive(Clone)]
-    struct TestEvmConfig {}
-
     #[test]
     fn test_provider() {
         let provider = TestExecutorProvider;
         let db = CacheDB::<EmptyDBTyped<ProviderError>>::default();
-        let executor = provider.executor(db);
+        let executor = provider.executor::<_, TestEvmConfig>(db);
         let _ = executor.execute(BlockExecutionInput::new(&Default::default(), U256::ZERO));
     }
 
@@ -693,7 +740,7 @@ mod tests {
         };
         let provider = BasicBlockExecutorProvider::new(strategy_factory);
         let db = CacheDB::<EmptyDBTyped<ProviderError>>::default();
-        let executor = provider.executor(db);
+        let executor = provider.executor::<_, TestEvmConfig>(db);
         let result = executor.execute(BlockExecutionInput::new(&Default::default(), U256::ZERO));
 
         assert!(result.is_ok());

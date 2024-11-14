@@ -13,6 +13,7 @@ use revm_primitives::db::Database;
 use crate::{
     execute::{BatchExecutor, BlockExecutorProvider, Executor},
     system_calls::OnStateHook,
+    ConfigureEvmEnv,
 };
 
 const UNAVAILABLE_FOR_NOOP: &str = "execution unavailable for noop";
@@ -23,26 +24,35 @@ const UNAVAILABLE_FOR_NOOP: &str = "execution unavailable for noop";
 pub struct NoopBlockExecutorProvider;
 
 impl BlockExecutorProvider for NoopBlockExecutorProvider {
-    type Executor<DB: Database<Error: Into<ProviderError> + Display>> = Self;
+    type Executor<DB: Database<Error: Into<ProviderError> + Display>, EvmConfig: ConfigureEvmEnv> =
+        Self;
 
-    type BatchExecutor<DB: Database<Error: Into<ProviderError> + Display>> = Self;
+    type BatchExecutor<
+        DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv,
+    > = Self;
 
-    fn executor<DB>(&self, _: DB) -> Self::Executor<DB>
+    fn executor<DB, EvmConfig>(&self, _: DB) -> Self::Executor<DB, EvmConfig>
     where
         DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv,
     {
         Self
     }
 
-    fn batch_executor<DB>(&self, _: DB) -> Self::BatchExecutor<DB>
+    fn batch_executor<DB, EvmConfig>(&self, _: DB) -> Self::BatchExecutor<DB, EvmConfig>
     where
         DB: Database<Error: Into<ProviderError> + Display>,
+        EvmConfig: ConfigureEvmEnv,
     {
         Self
     }
 }
 
-impl<DB> Executor<DB> for NoopBlockExecutorProvider {
+impl<DB, EvmConfig> Executor<DB, EvmConfig> for NoopBlockExecutorProvider
+where
+    EvmConfig: ConfigureEvmEnv,
+{
     type Input<'a> = BlockExecutionInput<'a, BlockWithSenders>;
     type Output = BlockExecutionOutput<Receipt>;
     type Error = BlockExecutionError;
@@ -74,7 +84,10 @@ impl<DB> Executor<DB> for NoopBlockExecutorProvider {
     }
 }
 
-impl<DB> BatchExecutor<DB> for NoopBlockExecutorProvider {
+impl<DB, EvmConfig> BatchExecutor<DB, EvmConfig> for NoopBlockExecutorProvider
+where
+    EvmConfig: ConfigureEvmEnv,
+{
     type Input<'a> = BlockExecutionInput<'a, BlockWithSenders>;
     type Output = ExecutionOutcome;
     type Error = BlockExecutionError;

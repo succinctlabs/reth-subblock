@@ -2,7 +2,7 @@
 //!
 //! Block processing related to syncing should take care to update the metrics by using either
 //! [`ExecutorMetrics::execute_metered`] or [`ExecutorMetrics::metered_one`].
-use crate::{execute::Executor, system_calls::OnStateHook};
+use crate::{execute::Executor, system_calls::OnStateHook, ConfigureEvmEnv};
 use metrics::{Counter, Gauge, Histogram};
 use reth_execution_types::{BlockExecutionInput, BlockExecutionOutput};
 use reth_metrics::Metrics;
@@ -94,7 +94,7 @@ impl ExecutorMetrics {
     /// of accounts, storage slots and bytecodes loaded and updated.
     /// Execute the given block using the provided [`Executor`] and update metrics for the
     /// execution.
-    pub fn execute_metered<'a, E, DB, O, Error>(
+    pub fn execute_metered<'a, E, DB, O, Error, EvmConfig>(
         &self,
         executor: E,
         input: BlockExecutionInput<'a, BlockWithSenders>,
@@ -103,10 +103,12 @@ impl ExecutorMetrics {
     where
         E: Executor<
             DB,
+            EvmConfig,
             Input<'a> = BlockExecutionInput<'a, BlockWithSenders>,
             Output = BlockExecutionOutput<O>,
             Error = Error,
         >,
+        EvmConfig: ConfigureEvmEnv,
     {
         // clone here is cheap, all the metrics are Option<Arc<_>>. additionally
         // they are gloally registered so that the data recorded in the hook will
@@ -143,6 +145,8 @@ impl ExecutorMetrics {
 
 #[cfg(test)]
 mod tests {
+    use crate::test_utils::TestEvmConfig;
+
     use super::*;
     use alloy_eips::eip7685::Requests;
     use metrics_util::debugging::{DebugValue, DebuggingRecorder, Snapshotter};
@@ -158,7 +162,10 @@ mod tests {
         result_and_state: ResultAndState,
     }
 
-    impl Executor<()> for MockExecutor {
+    impl<EvmConfig> Executor<(), EvmConfig> for MockExecutor
+    where
+        EvmConfig: ConfigureEvmEnv,
+    {
         type Input<'a>
             = BlockExecutionInput<'a, BlockWithSenders>
         where
@@ -270,7 +277,9 @@ mod tests {
             },
         };
         let executor = MockExecutor { result_and_state };
-        let _result = metrics.execute_metered(executor, input, state_hook).unwrap();
+        let _result = metrics
+            .execute_metered::<_, _, _, _, TestEvmConfig>(executor, input, state_hook)
+            .unwrap();
 
         let snapshot = snapshotter.snapshot().into_vec();
 
@@ -308,7 +317,9 @@ mod tests {
             state: EvmState::default(),
         };
         let executor = MockExecutor { result_and_state };
-        let _result = metrics.execute_metered(executor, input, state_hook).unwrap();
+        let _result = metrics
+            .execute_metered::<_, _, _, _, TestEvmConfig>(executor, input, state_hook)
+            .unwrap();
 
         let actual_output = rx.try_recv().unwrap();
         assert_eq!(actual_output, expected_output);

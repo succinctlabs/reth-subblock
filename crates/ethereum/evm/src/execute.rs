@@ -18,13 +18,12 @@ use reth_evm::{
     },
     state_change::post_block_balance_increments,
     system_calls::{OnStateHook, SystemCaller},
-    ConfigureEvm,
+    ConfigureEvm, ConfigureEvmEnv,
 };
 use reth_primitives::{BlockWithSenders, Receipt};
-use reth_revm::db::State;
+use reth_revm::{db::State, DatabaseCommit};
 use revm_primitives::{
-    db::{Database, DatabaseCommit},
-    BlockEnv, CfgEnvWithHandlerCfg, EnvWithHandlerCfg, ResultAndState, U256,
+    db::Database, BlockEnv, CfgEnvWithHandlerCfg, EnvWithHandlerCfg, ResultAndState, U256,
 };
 
 /// Factory for [`EthExecutionStrategy`].
@@ -60,12 +59,13 @@ where
     EvmConfig:
         Clone + Unpin + Sync + Send + 'static + ConfigureEvm<Header = alloy_consensus::Header>,
 {
-    type Strategy<DB: Database<Error: Into<ProviderError> + Display>> =
+    type Strategy<DB: Database<Error: Into<ProviderError> + Display>, EC: ConfigureEvmEnv> =
         EthExecutionStrategy<DB, EvmConfig>;
 
-    fn create_strategy<DB>(&self, db: DB) -> Self::Strategy<DB>
+    fn create_strategy<DB, EC>(&self, db: DB) -> Self::Strategy<DB, EC>
     where
         DB: Database<Error: Into<ProviderError> + Display>,
+        EC: ConfigureEvmEnv,
     {
         let state =
             State::builder().with_database(db).with_bundle_update().without_state_clear().build();
@@ -123,12 +123,16 @@ where
     }
 }
 
-impl<DB, EvmConfig> BlockExecutionStrategy<DB> for EthExecutionStrategy<DB, EvmConfig>
+impl<DB, EvmConfig> BlockExecutionStrategy<DB, EvmConfig> for EthExecutionStrategy<DB, EvmConfig>
 where
     DB: Database<Error: Into<ProviderError> + Display>,
     EvmConfig: ConfigureEvm<Header = alloy_consensus::Header>,
 {
     type Error = BlockExecutionError;
+
+    fn init(&mut self, evm_config: EvmConfig) {
+        self.evm_config = evm_config;
+    }
 
     fn apply_pre_execution_changes(
         &mut self,
