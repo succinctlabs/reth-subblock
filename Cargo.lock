@@ -5283,6 +5283,8 @@ dependencies = [
  "reth-optimism-primitives",
  "reth-optimism-rpc",
  "reth-provider",
+ "reth-revm",
+ "revm",
  "tracing",
 ]
 
@@ -7937,10 +7939,12 @@ dependencies = [
  "reth-payload-builder",
  "reth-primitives",
  "reth-provider",
+ "reth-revm",
  "reth-rpc",
  "reth-tasks",
  "reth-tracing",
  "reth-transaction-pool",
+ "revm",
  "serde_json",
  "tokio",
 ]
