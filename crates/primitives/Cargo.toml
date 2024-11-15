@@ -33,9 +33,7 @@ alloy-eips = { workspace = true, features = ["serde"] }
 
 # optimism
 op-alloy-rpc-types = { workspace = true, optional = true }
-op-alloy-consensus = { workspace = true, features = [
-    "arbitrary",
-], optional = true }
+op-alloy-consensus = { workspace = true, optional = true }
 
 # crypto
 secp256k1 = { workspace = true, features = [
@@ -105,6 +103,7 @@ arbitrary = [
     "reth-primitives-traits/arbitrary",
     "revm-primitives/arbitrary",
     "secp256k1",
+    "op-alloy-consensus?/arbitrary",
 ]
 secp256k1 = ["dep:secp256k1"]
 c-kzg = [

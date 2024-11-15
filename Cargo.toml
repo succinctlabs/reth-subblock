@@ -407,13 +407,17 @@ reth-trie-db = { path = "crates/trie/db" }
 reth-trie-parallel = { path = "crates/trie/parallel" }
 
 # revm
-revm = { version = "14.0.0", features = [
-    "std",
-], default-features = false }
+# revm = { version = "14.0.0", features = [
+#     "std",
+# ], default-features = false }
+# revm-inspectors = "0.8.1"
+# revm-primitives = { version = "10.0.0", features = [
+#     "std",
+# ], default-features = false }
+
+revm = { path = "../revm/crates/revm", features = ["std"], default-features = false }
 revm-inspectors = "0.8.1"
-revm-primitives = { version = "10.0.0", features = [
-    "std",
-], default-features = false }
+revm-primitives = { path = "../revm/crates/primitives", features = ["std"], default-features = false }
 
 # eth
 alloy-chains = "0.1.32"
