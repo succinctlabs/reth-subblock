@@ -110,12 +110,17 @@ impl Block {
             let Some(senders) =
                 TransactionSigned::recover_signers_unchecked(&self.body, self.body.len())
             else {
-                return Err(self)
+                return Err(self);
             };
             senders
         };
 
-        Ok(BlockWithSenders { block: self, senders })
+        Ok(BlockWithSenders {
+            block: self,
+            senders,
+            is_first_subblock: true,
+            is_last_subblock: true,
+        })
     }
 
     /// **Expensive**. Transform into a [`BlockWithSenders`] by recovering senders in the contained
@@ -124,7 +129,12 @@ impl Block {
     /// Returns `None` if a transaction is invalid.
     pub fn with_recovered_senders(self) -> Option<BlockWithSenders> {
         let senders = self.senders()?;
-        Some(BlockWithSenders { block: self, senders })
+        Some(BlockWithSenders {
+            block: self,
+            senders,
+            is_first_subblock: true,
+            is_last_subblock: true,
+        })
     }
 
     /// Returns whether or not the block contains any blob transactions.
@@ -207,12 +217,21 @@ pub struct BlockWithSenders {
     pub block: Block,
     /// List of senders that match the transactions in the block
     pub senders: Vec<Address>,
+    /// whether or not to execute the initial block transactions
+    pub is_first_subblock: bool,
+    /// whether or not to do postprocessing stuff
+    pub is_last_subblock: bool,
 }
 
 impl BlockWithSenders {
     /// New block with senders. Return none if len of tx and senders does not match
     pub fn new(block: Block, senders: Vec<Address>) -> Option<Self> {
-        (block.body.len() == senders.len()).then_some(Self { block, senders })
+        (block.body.len() == senders.len()).then_some(Self {
+            block,
+            senders,
+            is_first_subblock: true,
+            is_last_subblock: true,
+        })
     }
 
     /// Seal the block with a known hash.
@@ -220,7 +239,7 @@ impl BlockWithSenders {
     /// WARNING: This method does not perform validation whether the hash is correct.
     #[inline]
     pub fn seal(self, hash: B256) -> SealedBlockWithSenders {
-        let Self { block, senders } = self;
+        let Self { block, senders, .. } = self;
         SealedBlockWithSenders { block: block.seal(hash), senders }
     }
 
@@ -406,7 +425,7 @@ impl SealedBlock {
             let Some(senders) =
                 TransactionSigned::recover_signers_unchecked(&self.body, self.body.len())
             else {
-                return Err(self)
+                return Err(self);
             };
             senders
         };
@@ -471,7 +490,7 @@ impl SealedBlock {
             return Err(GotExpected {
                 got: calculated_root,
                 expected: self.header.transactions_root,
-            })
+            });
         }
 
         Ok(())
@@ -516,7 +535,12 @@ impl SealedBlockWithSenders {
     #[inline]
     pub fn unseal(self) -> BlockWithSenders {
         let Self { block, senders } = self;
-        BlockWithSenders { block: block.unseal(), senders }
+        BlockWithSenders {
+            block: block.unseal(),
+            senders,
+            is_first_subblock: true,
+            is_last_subblock: true,
+        }
     }
 
     /// Returns an iterator over all transactions in the block.
@@ -605,11 +629,12 @@ impl BlockBody {
     /// Calculates a heuristic for the in-memory size of the [`BlockBody`].
     #[inline]
     pub fn size(&self) -> usize {
-        self.transactions.iter().map(TransactionSigned::size).sum::<usize>() +
-            self.transactions.capacity() * core::mem::size_of::<TransactionSigned>() +
-            self.ommers.iter().map(Header::size).sum::<usize>() +
-            self.ommers.capacity() * core::mem::size_of::<Header>() +
-            self.withdrawals
+        self.transactions.iter().map(TransactionSigned::size).sum::<usize>()
+            + self.transactions.capacity() * core::mem::size_of::<TransactionSigned>()
+            + self.ommers.iter().map(Header::size).sum::<usize>()
+            + self.ommers.capacity() * core::mem::size_of::<Header>()
+            + self
+                .withdrawals
                 .as_ref()
                 .map_or(core::mem::size_of::<Option<Withdrawals>>(), Withdrawals::total_size)
     }
@@ -810,7 +835,12 @@ mod tests {
         assert_eq!(BlockWithSenders::new(block.clone(), vec![]), None);
         assert_eq!(
             BlockWithSenders::new(block.clone(), vec![sender]),
-            Some(BlockWithSenders { block: block.clone(), senders: vec![sender] })
+            Some(BlockWithSenders {
+                block: block.clone(),
+                senders: vec![sender],
+                is_first_subblock: true,
+                is_last_subblock: true,
+            })
         );
         let sealed = block.seal_slow();
         assert_eq!(SealedBlockWithSenders::new(sealed.clone(), vec![]), None);

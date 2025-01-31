@@ -396,14 +396,14 @@ reth-trie-parallel = { path = "crates/trie/parallel" }
 
 # revm
 revm-inspectors = "0.6"
-revm = { version = "14.0.0", features = [
-    "std",
-], default-features = false }
-revm-primitives = { version = "9.0.0", features = [
-    "std",
-], default-features = false }
-# revm = { path = "../revm/crates/revm", features = ["std"], default-features = false }
-# revm-primitives = { path = "../revm/crates/primitives", features = ["std"], default-features = false }
+# revm = { version = "14.0.0", features = [
+#     "std",
+# ], default-features = false }
+# revm-primitives = { version = "9.0.0", features = [
+#     "std",
+# ], default-features = false }
+revm = { path = "../revm/crates/revm", features = ["std"], default-features = false }
+revm-primitives = { path = "../revm/crates/primitives", features = ["std"], default-features = false }
 
 # revm = { git = "https://github.com/sp1-patches/revm", branch = "yuwen/cache-analyzed-bytecode", features = ["std"], default-features = false }
 # revm-primitives = { git = "https://github.com/sp1-patches/revm", branch = "yuwen/cache-analyzed-bytecode", features = ["std"], default-features = false }
