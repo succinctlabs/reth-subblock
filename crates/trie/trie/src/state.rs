@@ -6,18 +6,23 @@ use itertools::Itertools;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 use reth_primitives::{keccak256, Account, Address, B256, U256};
 use revm::db::{states::CacheAccount, AccountStatus, BundleAccount};
+use rkyv::hash::FxHasher64;
 use std::{
     borrow::Cow,
     collections::{hash_map, HashMap, HashSet},
 };
 
 /// Representation of in-memory hashed state.
-#[derive(PartialEq, Eq, Clone, Default, Debug)]
+#[derive(
+    PartialEq, Eq, Clone, Default, Debug, rkyv::Archive, rkyv::Serialize, rkyv::Deserialize,
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct HashedPostState {
     /// Mapping of hashed address to account info, `None` if destroyed.
+    #[rkyv(with = rkyv::with::AsVec)]
     pub accounts: HashMap<B256, Option<Account>>,
     /// Mapping of hashed address to hashed storage.
+    #[rkyv(with = rkyv::with::AsVec)]
     pub storages: HashMap<B256, HashedStorage>,
 }
 
@@ -195,14 +200,18 @@ impl HashedPostState {
 }
 
 /// Representation of in-memory hashed storage.
-#[derive(PartialEq, Eq, Clone, Debug, Default)]
+#[derive(
+    PartialEq, Eq, Clone, Debug, Default, rkyv::Archive, rkyv::Serialize, rkyv::Deserialize,
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct HashedStorage {
     /// Flag indicating whether the storage was wiped or not.
     pub wiped: bool,
     /// Mapping of hashed storage slot to storage value.
+    #[rkyv(with = rkyv::with::AsVec)]
     pub storage: HashMap<B256, U256>,
     /// inverses
+    #[rkyv(with = rkyv::with::AsVec)]
     pub inverses: HashMap<B256, B256>,
 }
 

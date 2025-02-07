@@ -9,7 +9,20 @@ use revm_primitives::{AccountInfo, Bytecode as RevmBytecode, JumpTable};
 use serde::{Deserialize, Serialize};
 
 /// An Ethereum account.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default, Serialize, Deserialize, Compact)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    PartialEq,
+    Eq,
+    Default,
+    Serialize,
+    Deserialize,
+    Compact,
+    rkyv::Archive,
+    rkyv::Serialize,
+    rkyv::Deserialize,
+)]
 #[cfg_attr(any(test, feature = "arbitrary"), derive(arbitrary::Arbitrary))]
 #[add_arbitrary_tests(compact)]
 pub struct Account {
