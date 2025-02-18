@@ -63,6 +63,8 @@ pub use reth_trie_common::*;
 #[cfg(feature = "metrics")]
 pub mod metrics;
 
+pub mod as_sorted_vec;
+
 /// Collection of trie-related test utilities.
 #[cfg(any(test, feature = "test-utils"))]
 pub mod test_utils;

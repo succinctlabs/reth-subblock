@@ -153,11 +153,7 @@ impl From<&GenesisAccount> for Account {
 impl From<AccountInfo> for Account {
     fn from(revm_acc: AccountInfo) -> Self {
         let code_hash = revm_acc.code_hash;
-        Self {
-            balance: revm_acc.balance,
-            nonce: revm_acc.nonce,
-            bytecode_hash: (code_hash != KECCAK_EMPTY).then_some(code_hash),
-        }
+        Self { balance: revm_acc.balance, nonce: revm_acc.nonce, bytecode_hash: Some(code_hash) }
     }
 }
 
