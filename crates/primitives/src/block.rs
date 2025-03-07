@@ -120,6 +120,7 @@ impl Block {
             senders,
             is_first_subblock: true,
             is_last_subblock: true,
+            subblock_gas_limit: 0,
         })
     }
 
@@ -134,6 +135,7 @@ impl Block {
             senders,
             is_first_subblock: true,
             is_last_subblock: true,
+            subblock_gas_limit: 0,
         })
     }
 
@@ -219,8 +221,10 @@ pub struct BlockWithSenders {
     pub senders: Vec<Address>,
     /// whether or not to execute the initial block transactions
     pub is_first_subblock: bool,
-    /// whether or not to do postprocessing stuff
+    /// whether or not to do postprocessing stuff.
     pub is_last_subblock: bool,
+    /// the gas limit for the subblock
+    pub subblock_gas_limit: u64,
 }
 
 impl BlockWithSenders {
@@ -231,6 +235,7 @@ impl BlockWithSenders {
             senders,
             is_first_subblock: true,
             is_last_subblock: true,
+            subblock_gas_limit: 0,
         })
     }
 
@@ -540,6 +545,7 @@ impl SealedBlockWithSenders {
             senders,
             is_first_subblock: true,
             is_last_subblock: true,
+            subblock_gas_limit: 0,
         }
     }
 
@@ -840,6 +846,7 @@ mod tests {
                 senders: vec![sender],
                 is_first_subblock: true,
                 is_last_subblock: true,
+                subblock_gas_limit: 0,
             })
         );
         let sealed = block.seal_slow();

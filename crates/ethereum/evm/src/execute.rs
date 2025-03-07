@@ -169,6 +169,7 @@ where
         // execute transactions
         let mut cumulative_gas_used = 0;
         let mut receipts = Vec::with_capacity(block.body.len());
+        println!("num transactions (internal): {}", block.body.len());
         for (sender, transaction) in block.transactions_with_sender() {
             // The sum of the transaction’s gas limit, Tg, and the gas utilized in this block prior,
             // must be no greater than the block’s gasLimit.
@@ -180,6 +181,7 @@ where
                 }
                 .into());
             }
+
             self.evm_config.fill_tx_env(evm.tx_mut(), transaction, *sender);
 
             // Execute transaction.
@@ -216,6 +218,12 @@ where
                     ..Default::default()
                 },
             );
+            // make sure to execute at least one transaction.
+            if block.subblock_gas_limit != 0 {
+                if cumulative_gas_used > block.subblock_gas_limit {
+                    break;
+                }
+            }
         }
 
         let requests = if self.chain_spec.is_prague_active_at_timestamp(block.timestamp) {
@@ -317,7 +325,12 @@ where
         }?;
 
         // 3. apply post execution changes
-        if block.is_last_subblock {
+        // If the number of receipts is the same as the number of transactions, then we executed all transactions.
+        // The first clause: if we're executing from the host, and we finished the entire block, postprocess.
+        // The second clause: if we're executing from the client, and the flag is set, postprocess.
+        if (block.subblock_gas_limit != 0 && output.receipts.len() == block.body.len())
+            || block.is_last_subblock
+        {
             self.post_execution(block, total_difficulty)?;
         }
 
