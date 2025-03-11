@@ -196,6 +196,11 @@ impl HashedPostState {
 
         TriePrefixSetsMut { account_prefix_set, storage_prefix_sets, destroyed_accounts }
     }
+
+    /// Prune wiped slots from hashed post state.
+    pub fn prune_wiped_slots(&mut self) {
+        self.storages.retain(|_, storage| !storage.wiped);
+    }
 }
 
 /// Representation of in-memory hashed storage.
@@ -209,20 +214,17 @@ pub struct HashedStorage {
     /// Mapping of hashed storage slot to storage value.
     #[rkyv(with = AsSortedVec)]
     pub storage: HashMap<B256, U256>,
-    /// inverses
-    #[rkyv(with = AsSortedVec)]
-    pub inverses: HashMap<B256, B256>,
 }
 
 impl HashedStorage {
     /// Create new instance of [`HashedStorage`].
     pub fn new(wiped: bool) -> Self {
-        Self { wiped, storage: HashMap::default(), inverses: HashMap::default() }
+        Self { wiped, storage: HashMap::default() }
     }
 
     /// Create new hashed storage from iterator.
     pub fn from_iter(wiped: bool, iter: impl IntoIterator<Item = (B256, U256)>) -> Self {
-        Self { wiped, storage: HashMap::from_iter(iter), inverses: HashMap::default() }
+        Self { wiped, storage: HashMap::from_iter(iter) }
     }
 
     /// Create new hashed storage from account status and plain storage.
@@ -246,11 +248,11 @@ impl HashedStorage {
             status.was_destroyed(),
             storage.clone().into_iter().map(|(key, value)| (keccak256(B256::from(*key)), *value)),
         );
-        let inverses = storage
-            .into_iter()
-            .map(|(key, _value)| (keccak256(B256::from(*key)), B256::from(*key)))
-            .collect::<HashMap<_, _>>();
-        tmp.inverses = inverses;
+        // let inverses = storage
+        //     .into_iter()
+        //     .map(|(key, _value)| (keccak256(B256::from(*key)), B256::from(*key)))
+        //     .collect::<HashMap<_, _>>();
+        // tmp.inverses = inverses;
         tmp
     }
 
