@@ -197,6 +197,11 @@ impl HashedPostState {
 
         TriePrefixSetsMut { account_prefix_set, storage_prefix_sets, destroyed_accounts }
     }
+
+    /// Prune wiped slots from hashed post state.
+    pub fn prune_wiped_slots(&mut self) {
+        self.storages.retain(|_, storage| !storage.wiped);
+    }
 }
 
 /// Representation of in-memory hashed storage.
