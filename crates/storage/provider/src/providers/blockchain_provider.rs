@@ -578,6 +578,7 @@ where
                         senders,
                         is_first_subblock: true,
                         is_last_subblock: true,
+                        subblock_gas_limit: 0,
                     }));
                 }
             }
@@ -590,6 +591,7 @@ where
                         senders,
                         is_first_subblock: true,
                         is_last_subblock: true,
+                        subblock_gas_limit: 0,
                     }));
                 }
             }
@@ -650,6 +652,7 @@ where
                         senders,
                         is_first_subblock: true,
                         is_last_subblock: true,
+                        subblock_gas_limit: 0,
                     }
                 })
             },
@@ -2378,6 +2381,7 @@ mod tests {
                 senders: sealed_block.senders().unwrap(),
                 is_first_subblock: true,
                 is_last_subblock: true,
+                subblock_gas_limit: 0,
             })
             .collect::<Vec<_>>();
 
@@ -2419,6 +2423,7 @@ mod tests {
                 senders: sealed_block.senders().unwrap(),
                 is_first_subblock: true,
                 is_last_subblock: true,
+                subblock_gas_limit: 0,
             })
             .collect::<Vec<_>>();
 
@@ -2460,6 +2465,7 @@ mod tests {
                 senders: sealed_block.senders().unwrap(),
                 is_first_subblock: true,
                 is_last_subblock: true,
+                subblock_gas_limit: 0,
             })
             .collect::<Vec<_>>();
 

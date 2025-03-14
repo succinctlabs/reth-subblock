@@ -547,6 +547,9 @@ mod tests {
                             requests: None,
                         },
                         senders: vec![addr, addr],
+                        is_first_subblock: false,
+                        is_last_subblock: false,
+                        subblock_gas_limit: 0,
                     },
                     U256::ZERO,
                 )
@@ -631,6 +634,9 @@ mod tests {
                             requests: None,
                         },
                         senders: vec![addr, addr],
+                        is_first_subblock: false,
+                        is_last_subblock: false,
+                        subblock_gas_limit: 0,
                     },
                     U256::ZERO,
                 )

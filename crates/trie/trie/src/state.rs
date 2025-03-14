@@ -38,7 +38,7 @@ impl HashedPostState {
             .map(|(address, account)| {
                 let hashed_address = keccak256(address);
                 let hashed_account = account.info.clone().map(Into::into);
-                let hashed_storage = HashedStorage::from_storage_with_inverses(
+                let hashed_storage = HashedStorage::from_plain_storage(
                     account.status,
                     account.storage.iter().map(|(slot, value)| (slot, &value.present_value)),
                 );
@@ -238,24 +238,6 @@ impl HashedStorage {
         )
     }
 
-    /// TODO: efficiency!
-    pub fn from_storage_with_inverses<'a>(
-        status: AccountStatus,
-        storage: impl IntoIterator<Item = (&'a U256, &'a U256)>,
-    ) -> Self {
-        let storage = storage.into_iter().collect::<Vec<_>>();
-        let mut tmp = Self::from_iter(
-            status.was_destroyed(),
-            storage.clone().into_iter().map(|(key, value)| (keccak256(B256::from(*key)), *value)),
-        );
-        // let inverses = storage
-        //     .into_iter()
-        //     .map(|(key, _value)| (keccak256(B256::from(*key)), B256::from(*key)))
-        //     .collect::<HashMap<_, _>>();
-        // tmp.inverses = inverses;
-        tmp
-    }
-
     /// Construct [`PrefixSetMut`] from hashed storage.
     pub fn construct_prefix_set(&self) -> PrefixSetMut {
         if self.wiped {
@@ -327,8 +309,9 @@ impl HashedPostStateSorted {
     /// Print some fairly deterministic representation of the state.
     ///
     /// Used for Yuwen's debugging.
-    pub fn display(&self) {
-        println!("accounts: {:?}", self.accounts.accounts);
+    pub fn display(&self) -> String {
+        let mut s = String::new();
+        s.push_str(&format!("accounts: {:?}\n", self.accounts.accounts));
         let sorted_storages = &self
             .storages
             .iter()
@@ -336,7 +319,8 @@ impl HashedPostStateSorted {
             .into_iter()
             .sorted_by_key(|entry| *entry.0)
             .collect::<Vec<_>>();
-        println!("storages: {:?}", sorted_storages);
+        s.push_str(&format!("storages: {:?}", sorted_storages));
+        s
     }
 }
 
