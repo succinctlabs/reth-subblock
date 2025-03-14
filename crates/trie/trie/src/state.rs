@@ -38,7 +38,7 @@ impl HashedPostState {
             .map(|(address, account)| {
                 let hashed_address = keccak256(address);
                 let hashed_account = account.info.clone().map(Into::into);
-                let hashed_storage = HashedStorage::from_storage_with_inverses(
+                let hashed_storage = HashedStorage::from_plain_storage(
                     account.status,
                     account.storage.iter().map(|(slot, value)| (slot, &value.present_value)),
                 );
@@ -47,7 +47,8 @@ impl HashedPostState {
             .collect::<Vec<(B256, (Option<Account>, HashedStorage))>>();
 
         let mut accounts = HashMap::with_capacity(hashed.len());
-        let mut storages = HashMap::with_capacity(hashed.len());
+        let mut storages: HashMap<alloy_primitives::FixedBytes<32>, HashedStorage> =
+            HashMap::with_capacity(hashed.len());
         for (address, (account, storage)) in hashed {
             accounts.insert(address, account);
             storages.insert(address, storage);
@@ -209,20 +210,17 @@ pub struct HashedStorage {
     /// Mapping of hashed storage slot to storage value.
     #[rkyv(with = AsSortedVec)]
     pub storage: HashMap<B256, U256>,
-    /// inverses
-    #[rkyv(with = AsSortedVec)]
-    pub inverses: HashMap<B256, B256>,
 }
 
 impl HashedStorage {
     /// Create new instance of [`HashedStorage`].
     pub fn new(wiped: bool) -> Self {
-        Self { wiped, storage: HashMap::default(), inverses: HashMap::default() }
+        Self { wiped, storage: HashMap::default() }
     }
 
     /// Create new hashed storage from iterator.
     pub fn from_iter(wiped: bool, iter: impl IntoIterator<Item = (B256, U256)>) -> Self {
-        Self { wiped, storage: HashMap::from_iter(iter), inverses: HashMap::default() }
+        Self { wiped, storage: HashMap::from_iter(iter) }
     }
 
     /// Create new hashed storage from account status and plain storage.
@@ -234,24 +232,6 @@ impl HashedStorage {
             status.was_destroyed(),
             storage.into_iter().map(|(key, value)| (keccak256(B256::from(*key)), *value)),
         )
-    }
-
-    /// TODO: efficiency!
-    pub fn from_storage_with_inverses<'a>(
-        status: AccountStatus,
-        storage: impl IntoIterator<Item = (&'a U256, &'a U256)>,
-    ) -> Self {
-        let storage = storage.into_iter().collect::<Vec<_>>();
-        let mut tmp = Self::from_iter(
-            status.was_destroyed(),
-            storage.clone().into_iter().map(|(key, value)| (keccak256(B256::from(*key)), *value)),
-        );
-        let inverses = storage
-            .into_iter()
-            .map(|(key, _value)| (keccak256(B256::from(*key)), B256::from(*key)))
-            .collect::<HashMap<_, _>>();
-        tmp.inverses = inverses;
-        tmp
     }
 
     /// Construct [`PrefixSetMut`] from hashed storage.
@@ -325,8 +305,9 @@ impl HashedPostStateSorted {
     /// Print some fairly deterministic representation of the state.
     ///
     /// Used for Yuwen's debugging.
-    pub fn display(&self) {
-        println!("accounts: {:?}", self.accounts.accounts);
+    pub fn display(&self) -> String {
+        let mut s = String::new();
+        s.push_str(&format!("accounts: {:?}\n", self.accounts.accounts));
         let sorted_storages = &self
             .storages
             .iter()
@@ -334,7 +315,8 @@ impl HashedPostStateSorted {
             .into_iter()
             .sorted_by_key(|entry| *entry.0)
             .collect::<Vec<_>>();
-        println!("storages: {:?}", sorted_storages);
+        s.push_str(&format!("storages: {:?}", sorted_storages));
+        s
     }
 }
 
