@@ -47,8 +47,7 @@ impl HashedPostState {
             .collect::<Vec<(B256, (Option<Account>, HashedStorage))>>();
 
         let mut accounts = HashMap::with_capacity(hashed.len());
-        let mut storages: HashMap<alloy_primitives::FixedBytes<32>, HashedStorage> =
-            HashMap::with_capacity(hashed.len());
+        let mut storages = HashMap::with_capacity(hashed.len());
         for (address, (account, storage)) in hashed {
             accounts.insert(address, account);
             storages.insert(address, storage);
