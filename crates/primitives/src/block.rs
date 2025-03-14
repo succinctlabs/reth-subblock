@@ -121,6 +121,7 @@ impl Block {
             is_first_subblock: true,
             is_last_subblock: true,
             subblock_gas_limit: 0,
+            starting_gas_used: 0,
         })
     }
 
@@ -136,6 +137,7 @@ impl Block {
             is_first_subblock: true,
             is_last_subblock: true,
             subblock_gas_limit: 0,
+            starting_gas_used: 0,
         })
     }
 
@@ -225,6 +227,8 @@ pub struct BlockWithSenders {
     pub is_last_subblock: bool,
     /// the gas limit for the subblock
     pub subblock_gas_limit: u64,
+    /// the gas used in the previous subblocks
+    pub starting_gas_used: u64,
 }
 
 impl BlockWithSenders {
@@ -236,6 +240,7 @@ impl BlockWithSenders {
             is_first_subblock: true,
             is_last_subblock: true,
             subblock_gas_limit: 0,
+            starting_gas_used: 0,
         })
     }
 
@@ -546,6 +551,7 @@ impl SealedBlockWithSenders {
             is_first_subblock: true,
             is_last_subblock: true,
             subblock_gas_limit: 0,
+            starting_gas_used: 0,
         }
     }
 
@@ -847,6 +853,7 @@ mod tests {
                 is_first_subblock: true,
                 is_last_subblock: true,
                 subblock_gas_limit: 0,
+                starting_gas_used: 0,
             })
         );
         let sealed = block.seal_slow();

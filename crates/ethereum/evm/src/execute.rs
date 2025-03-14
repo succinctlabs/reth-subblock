@@ -167,9 +167,7 @@ where
         }
 
         // execute transactions
-        // TODO: SET THE CUMULATIVE GAS USED TO WHATEVER WAS USED IN PREVIOUS SUBBLOCKS
-        // THE CURRENT EXECUTION WILL NOT ADHERE TO THE ETHEREUM SPEC
-        let mut cumulative_gas_used = 0;
+        let mut cumulative_gas_used = block.starting_gas_used;
         let mut receipts = Vec::with_capacity(block.body.len());
         println!("num transactions (internal): {}", block.body.len());
         for (sender, transaction) in block.transactions_with_sender() {

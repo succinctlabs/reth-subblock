@@ -550,6 +550,7 @@ mod tests {
                         is_first_subblock: false,
                         is_last_subblock: false,
                         subblock_gas_limit: 0,
+                        starting_gas_used: 0,
                     },
                     U256::ZERO,
                 )
@@ -637,6 +638,7 @@ mod tests {
                         is_first_subblock: false,
                         is_last_subblock: false,
                         subblock_gas_limit: 0,
+                        starting_gas_used: 0,
                     },
                     U256::ZERO,
                 )

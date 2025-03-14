@@ -579,6 +579,7 @@ where
                         is_first_subblock: true,
                         is_last_subblock: true,
                         subblock_gas_limit: 0,
+                        starting_gas_used: 0,
                     }));
                 }
             }
@@ -592,6 +593,7 @@ where
                         is_first_subblock: true,
                         is_last_subblock: true,
                         subblock_gas_limit: 0,
+                        starting_gas_used: 0,
                     }));
                 }
             }
@@ -653,6 +655,7 @@ where
                         is_first_subblock: true,
                         is_last_subblock: true,
                         subblock_gas_limit: 0,
+                        starting_gas_used: 0,
                     }
                 })
             },
@@ -2382,6 +2385,7 @@ mod tests {
                 is_first_subblock: true,
                 is_last_subblock: true,
                 subblock_gas_limit: 0,
+                starting_gas_used: 0,
             })
             .collect::<Vec<_>>();
 
@@ -2424,6 +2428,7 @@ mod tests {
                 is_first_subblock: true,
                 is_last_subblock: true,
                 subblock_gas_limit: 0,
+                starting_gas_used: 0,
             })
             .collect::<Vec<_>>();
 
@@ -2466,6 +2471,7 @@ mod tests {
                 is_first_subblock: true,
                 is_last_subblock: true,
                 subblock_gas_limit: 0,
+                starting_gas_used: 0,
             })
             .collect::<Vec<_>>();
 
