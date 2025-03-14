@@ -167,6 +167,8 @@ where
         }
 
         // execute transactions
+        // TODO: SET THE CUMULATIVE GAS USED TO WHATEVER WAS USED IN PREVIOUS SUBBLOCKS
+        // THE CURRENT EXECUTION WILL NOT ADHERE TO THE ETHEREUM SPEC
         let mut cumulative_gas_used = 0;
         let mut receipts = Vec::with_capacity(block.body.len());
         println!("num transactions (internal): {}", block.body.len());
@@ -180,6 +182,20 @@ where
                     block_available_gas,
                 }
                 .into());
+            }
+
+            // Checks to make sure
+            // 1. We are running in a mode where subblock gas limit is enforced
+            // 2. We have already executed at least one transaction in the subblock
+            // 3. The transaction gas limit is large.
+            // 4. The transaction gas limit + cumulative gas used is greater than the subblock gas limit.
+            // This makes sure that super big transactions are isolated in their own subblock.
+            if block.subblock_gas_limit != 0
+                && cumulative_gas_used != 0
+                && transaction.gas_limit() > 10_000_000
+                && transaction.gas_limit() + cumulative_gas_used > block.subblock_gas_limit
+            {
+                break;
             }
 
             self.evm_config.fill_tx_env(evm.tx_mut(), transaction, *sender);
