@@ -239,6 +239,7 @@ where
             }
         }
 
+        println!("yuwen cumulative gas used: {}", cumulative_gas_used);
         let requests = if self.chain_spec.is_prague_active_at_timestamp(block.timestamp) {
             // Collect all EIP-6110 deposits
             let deposit_requests =
