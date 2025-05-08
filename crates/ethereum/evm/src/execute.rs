@@ -190,7 +190,6 @@ where
             // This makes sure that super big transactions are isolated in their own subblock.
             if block.subblock_gas_limit != 0
                 && cumulative_gas_used != 0
-                && transaction.gas_limit() > 10_000_000
                 && transaction.gas_limit() + cumulative_gas_used > block.subblock_gas_limit
             {
                 break;
