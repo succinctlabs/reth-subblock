@@ -521,6 +521,95 @@ where
     }
 }
 
+/// A selective block executor that uses a [`BlockExecutor`] to
+/// execute blocks, but only the transactions in the given index range.
+///
+/// TODO: move this to RSP.
+#[expect(missing_debug_implementations)]
+pub struct SelectiveBlockExecutor<F, DB> {
+    /// Block execution strategy.
+    pub(crate) strategy_factory: F,
+    /// Database.
+    pub(crate) db: State<DB>,
+    /// The index range of the transactions to be executed.
+    pub(crate) index_range: (usize, usize),
+}
+
+impl<F, DB: Database> SelectiveBlockExecutor<F, DB> {
+    /// Creates a new `BasicBlockExecutor` with the given strategy.
+    pub fn new(strategy_factory: F, db: DB, index_range: (usize, usize)) -> Self {
+        let db =
+            State::builder().with_database(db).with_bundle_update().without_state_clear().build();
+        Self { strategy_factory, db, index_range }
+    }
+}
+
+impl<F, DB> Executor<DB> for SelectiveBlockExecutor<F, DB>
+where
+    F: ConfigureEvm,
+    DB: Database,
+{
+    type Primitives = F::Primitives;
+    type Error = BlockExecutionError;
+
+    fn execute_one(
+        &mut self,
+        block: &RecoveredBlock<<Self::Primitives as NodePrimitives>::Block>,
+    ) -> Result<BlockExecutionResult<<Self::Primitives as NodePrimitives>::Receipt>, Self::Error>
+    {
+        let mut strategy = self.strategy_factory.executor_for_block(&mut self.db, block);
+
+        // Note: for the subblock ConfigureEvm, this will only do something for the first subblock.
+        strategy.apply_pre_execution_changes()?;
+        let txs = block
+            .transactions_recovered()
+            .skip(self.index_range.0)
+            .take(self.index_range.1 - self.index_range.0);
+        for tx in txs {
+            strategy.execute_transaction(tx)?;
+        }
+        // Note: for the subblock ConfigureEvm, this will only do something for the last subblock.
+        let result = strategy.apply_post_execution_changes()?;
+
+        self.db.merge_transitions(BundleRetention::Reverts);
+
+        Ok(result)
+    }
+
+    /// TODO: modify this too, but it is not currently used.
+    fn execute_one_with_state_hook<H>(
+        &mut self,
+        block: &RecoveredBlock<<Self::Primitives as NodePrimitives>::Block>,
+        state_hook: H,
+    ) -> Result<BlockExecutionResult<<Self::Primitives as NodePrimitives>::Receipt>, Self::Error>
+    where
+        H: OnStateHook + 'static,
+    {
+        let mut strategy = self
+            .strategy_factory
+            .executor_for_block(&mut self.db, block)
+            .with_state_hook(Some(Box::new(state_hook)));
+
+        strategy.apply_pre_execution_changes()?;
+        for tx in block.transactions_recovered() {
+            strategy.execute_transaction(tx)?;
+        }
+        let result = strategy.apply_post_execution_changes()?;
+
+        self.db.merge_transitions(BundleRetention::Reverts);
+
+        Ok(result)
+    }
+
+    fn into_state(self) -> State<DB> {
+        self.db
+    }
+
+    fn size_hint(&self) -> usize {
+        self.db.bundle_state.size_hint()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
