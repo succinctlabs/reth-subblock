@@ -169,7 +169,6 @@ where
         // execute transactions
         let mut cumulative_gas_used = block.starting_gas_used;
         let mut receipts = Vec::with_capacity(block.body.len());
-        tracing::debug!("num transactions (internal): {}", block.body.len());
         for (sender, transaction) in block.transactions_with_sender() {
             // The sum of the transaction’s gas limit, Tg, and the gas utilized in this block prior,
             // must be no greater than the block’s gasLimit.
@@ -239,7 +238,6 @@ where
             }
         }
 
-        tracing::debug!("cumulative gas used: {}", cumulative_gas_used);
         let requests = if self.chain_spec.is_prague_active_at_timestamp(block.timestamp) {
             // Collect all EIP-6110 deposits
             let deposit_requests =
