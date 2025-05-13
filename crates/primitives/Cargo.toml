@@ -55,9 +55,6 @@ tempfile = { workspace = true, optional = true }
 thiserror = { workspace = true, optional = true }
 zstd = { workspace = true, features = ["experimental"], optional = true }
 
-# rkyv
-rkyv = { workspace = true }
-
 # arbitrary utils
 arbitrary = { workspace = true, features = ["derive"], optional = true }
 proptest = { workspace = true, optional = true }

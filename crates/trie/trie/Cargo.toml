@@ -44,8 +44,6 @@ triehash = { version = "0.8", optional = true }
 # `serde` feature
 serde = { workspace = true, optional = true }
 
-# rkyv
-rkyv = { workspace = true }
 
 [dev-dependencies]
 # reth
