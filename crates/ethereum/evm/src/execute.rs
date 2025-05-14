@@ -163,7 +163,6 @@ where
                 block.parent_hash,
                 &mut evm,
             )?;
-            println!("applied pre-execution changes");
         }
 
         // execute transactions
