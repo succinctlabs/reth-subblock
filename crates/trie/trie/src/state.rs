@@ -1,5 +1,4 @@
 use crate::{
-    as_sorted_vec::AsSortedVec,
     prefix_set::{PrefixSetMut, TriePrefixSetsMut},
     Nibbles,
 };
@@ -13,16 +12,12 @@ use std::{
 };
 
 /// Representation of in-memory hashed state.
-#[derive(
-    PartialEq, Eq, Clone, Default, Debug, rkyv::Archive, rkyv::Serialize, rkyv::Deserialize,
-)]
+#[derive(PartialEq, Eq, Clone, Default, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct HashedPostState {
     /// Mapping of hashed address to account info, `None` if destroyed.
-    #[rkyv(with = AsSortedVec)]
     pub accounts: HashMap<B256, Option<Account>>,
     /// Mapping of hashed address to hashed storage.
-    #[rkyv(with = AsSortedVec)]
     pub storages: HashMap<B256, HashedStorage>,
 }
 
@@ -204,15 +199,12 @@ impl HashedPostState {
 }
 
 /// Representation of in-memory hashed storage.
-#[derive(
-    PartialEq, Eq, Clone, Debug, Default, rkyv::Archive, rkyv::Serialize, rkyv::Deserialize,
-)]
+#[derive(PartialEq, Eq, Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct HashedStorage {
     /// Flag indicating whether the storage was wiped or not.
     pub wiped: bool,
     /// Mapping of hashed storage slot to storage value.
-    #[rkyv(with = AsSortedVec)]
     pub storage: HashMap<B256, U256>,
 }
 

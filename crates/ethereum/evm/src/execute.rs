@@ -163,13 +163,11 @@ where
                 block.parent_hash,
                 &mut evm,
             )?;
-            println!("applied pre-execution changes");
         }
 
         // execute transactions
         let mut cumulative_gas_used = block.starting_gas_used;
         let mut receipts = Vec::with_capacity(block.body.len());
-        tracing::debug!("num transactions (internal): {}", block.body.len());
         for (sender, transaction) in block.transactions_with_sender() {
             // The sum of the transaction’s gas limit, Tg, and the gas utilized in this block prior,
             // must be no greater than the block’s gasLimit.
@@ -189,7 +187,7 @@ where
             // 4. The transaction gas limit + cumulative gas used is greater than the subblock gas limit.
             // This makes sure that super big transactions are isolated in their own subblock.
             if block.subblock_gas_limit != 0
-                && cumulative_gas_used != 0
+                && cumulative_gas_used - block.starting_gas_used != 0
                 && transaction.gas_limit() + cumulative_gas_used > block.subblock_gas_limit
             {
                 break;
@@ -239,7 +237,6 @@ where
             }
         }
 
-        tracing::debug!("cumulative gas used: {}", cumulative_gas_used);
         let requests = if self.chain_spec.is_prague_active_at_timestamp(block.timestamp) {
             // Collect all EIP-6110 deposits
             let deposit_requests =

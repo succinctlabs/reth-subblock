@@ -221,13 +221,15 @@ pub struct BlockWithSenders {
     pub block: Block,
     /// List of senders that match the transactions in the block
     pub senders: Vec<Address>,
-    /// whether or not to execute the initial block transactions
+    /// Whether or not to preprocess the block.
     pub is_first_subblock: bool,
-    /// whether or not to do postprocessing stuff.
+    /// Whether or not to postprocess the block.
     pub is_last_subblock: bool,
-    /// the gas limit for the subblock
+    /// The gas limit for the subblock. If zero, no limit is enforced.
+    ///
+    /// The RSP host executor uses this to split up the subblocks. The RSP client executor does not.
     pub subblock_gas_limit: u64,
-    /// the gas used in the previous subblocks
+    /// The gas used in the previous subblocks.
     pub starting_gas_used: u64,
 }
 
