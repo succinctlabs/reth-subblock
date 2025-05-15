@@ -395,18 +395,13 @@ reth-trie-db = { path = "crates/trie/db" }
 reth-trie-parallel = { path = "crates/trie/parallel" }
 
 # revm
-revm-inspectors = "0.6"
 revm = { version = "14.0.0", features = [
     "std",
 ], default-features = false }
+revm-inspectors = "0.6"
 revm-primitives = { version = "9.0.0", features = [
     "std",
 ], default-features = false }
-# revm = { path = "../revm/crates/revm", features = ["std"], default-features = false }
-# revm-primitives = { path = "../revm/crates/primitives", features = ["std"], default-features = false }
-
-# revm = { git = "https://github.com/sp1-patches/revm", branch = "yuwen/cache-analyzed-bytecode", features = ["std"], default-features = false }
-# revm-primitives = { git = "https://github.com/sp1-patches/revm", branch = "yuwen/cache-analyzed-bytecode", features = ["std"], default-features = false }
 
 # eth
 alloy-chains = "0.1.18"
@@ -524,8 +519,6 @@ pin-project = "1.0.12"
 reqwest = { version = "0.12", default-features = false }
 tower = "0.4"
 tower-http = "0.5"
-
-ruint = "=1.12.4"
 
 # p2p
 discv5 = "0.7.0"
