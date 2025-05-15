@@ -490,7 +490,6 @@ tracing = "0.1.0"
 tracing-appender = "0.2"
 url = "2.3"
 zstd = "0.13"
-rkyv = { version = "0.8.10" }
 
 # metrics
 metrics = "0.23.0"
@@ -561,7 +560,3 @@ serial_test = "3"
 similar-asserts = "1.5.0"
 tempfile = "3.8"
 test-fuzz = "5"
-
-[patch.crates-io]
-alloy-primitives = { git = "https://github.com/yuwen01/alloy-core", branch = "yuwen/rkyv20" }
-ruint = { git = "https://github.com/yuwen01/uint", branch = "yuwen/rkyv" }

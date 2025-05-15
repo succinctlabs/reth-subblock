@@ -24,9 +24,6 @@ alloy-rpc-types-eth = { workspace = true, optional = true }
 derive_more.workspace = true
 revm-primitives = { workspace = true, features = ["serde"] }
 
-# rkyv
-rkyv = { workspace = true }
-
 # misc
 roaring = "0.10.2"
 byteorder = "1"

@@ -18,18 +18,7 @@ use alloc::{vec, vec::Vec};
 
 /// Receipt containing result of transaction execution.
 #[derive(
-    Clone,
-    Debug,
-    PartialEq,
-    Eq,
-    Default,
-    RlpEncodable,
-    RlpDecodable,
-    Serialize,
-    Deserialize,
-    rkyv::Archive,
-    rkyv::Serialize,
-    rkyv::Deserialize,
+    Clone, Debug, PartialEq, Eq, Default, RlpEncodable, RlpDecodable, Serialize, Deserialize,
 )]
 #[cfg_attr(any(test, feature = "reth-codec"), derive(CompactZstd))]
 #[cfg_attr(any(test, feature = "reth-codec"), reth_codecs::add_arbitrary_tests)]

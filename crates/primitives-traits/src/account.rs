@@ -19,9 +19,6 @@ use serde::{Deserialize, Serialize};
     Serialize,
     Deserialize,
     Compact,
-    rkyv::Archive,
-    rkyv::Serialize,
-    rkyv::Deserialize,
 )]
 #[cfg_attr(any(test, feature = "arbitrary"), derive(arbitrary::Arbitrary))]
 #[add_arbitrary_tests(compact)]
