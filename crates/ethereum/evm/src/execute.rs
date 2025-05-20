@@ -181,11 +181,10 @@ where
             }
 
             // Checks to make sure
-            // 1. We are running in a mode where subblock gas limit is enforced
+            // 1. We are running in a mode where subblock gas limit is enforced (the host)
             // 2. We have already executed at least one transaction in the subblock
-            // 3. The transaction gas limit is large.
-            // 4. The transaction gas limit + cumulative gas used is greater than the subblock gas limit.
-            // This makes sure that super big transactions are isolated in their own subblock.
+            // 3. The transaction gas limit + cumulative gas used is greater than the subblock gas limit.
+            // This limits the size of subblocks.
             if block.subblock_gas_limit != 0
                 && cumulative_gas_used - block.starting_gas_used != 0
                 && transaction.gas_limit() + cumulative_gas_used > block.subblock_gas_limit
@@ -412,6 +411,7 @@ where
         Ok(BlockExecutionOutput { state: self.state.take_bundle(), receipts, requests, gas_used })
     }
 }
+
 /// An executor for a batch of blocks.
 ///
 /// State changes are tracked until the executor is finalized.
