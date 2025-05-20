@@ -23,7 +23,6 @@ revm.workspace = true
 
 # alloy
 alloy-rlp.workspace = true
-alloy-primitives = { workspace = true, features = ["map"] }
 
 # tracing
 tracing.workspace = true
@@ -43,7 +42,6 @@ triehash = { version = "0.8", optional = true }
 
 # `serde` feature
 serde = { workspace = true, optional = true }
-
 
 [dev-dependencies]
 # reth

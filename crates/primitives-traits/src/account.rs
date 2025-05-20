@@ -9,17 +9,7 @@ use revm_primitives::{AccountInfo, Bytecode as RevmBytecode, JumpTable};
 use serde::{Deserialize, Serialize};
 
 /// An Ethereum account.
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    PartialEq,
-    Eq,
-    Default,
-    Serialize,
-    Deserialize,
-    Compact,
-)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default, Serialize, Deserialize, Compact)]
 #[cfg_attr(any(test, feature = "arbitrary"), derive(arbitrary::Arbitrary))]
 #[add_arbitrary_tests(compact)]
 pub struct Account {
@@ -40,9 +30,9 @@ impl Account {
     /// After `SpuriousDragon` empty account is defined as account with nonce == 0 && balance == 0
     /// && bytecode = None (or hash is [`KECCAK_EMPTY`]).
     pub fn is_empty(&self) -> bool {
-        self.nonce == 0
-            && self.balance.is_zero()
-            && self.bytecode_hash.map_or(true, |hash| hash == KECCAK_EMPTY)
+        self.nonce == 0 &&
+            self.balance.is_zero() &&
+            self.bytecode_hash.map_or(true, |hash| hash == KECCAK_EMPTY)
     }
 
     /// Returns an account bytecode's hash.
@@ -150,7 +140,11 @@ impl From<&GenesisAccount> for Account {
 impl From<AccountInfo> for Account {
     fn from(revm_acc: AccountInfo) -> Self {
         let code_hash = revm_acc.code_hash;
-        Self { balance: revm_acc.balance, nonce: revm_acc.nonce, bytecode_hash: Some(code_hash) }
+        Self {
+            balance: revm_acc.balance,
+            nonce: revm_acc.nonce,
+            bytecode_hash: (code_hash != KECCAK_EMPTY).then_some(code_hash),
+        }
     }
 }
 

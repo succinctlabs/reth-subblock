@@ -43,22 +43,21 @@ pub const DEPOSIT_TX_TYPE_ID: u8 = 126;
 )]
 #[cfg_attr(any(test, feature = "arbitrary"), derive(arbitrary::Arbitrary))]
 #[cfg_attr(any(test, feature = "reth-codec"), reth_codecs::add_arbitrary_tests(compact))]
-#[repr(isize)]
 pub enum TxType {
     /// Legacy transaction pre EIP-2929
     #[default]
-    Legacy = 0,
+    Legacy = 0_isize,
     /// AccessList transaction
-    Eip2930 = 1,
+    Eip2930 = 1_isize,
     /// Transaction with Priority fee
-    Eip1559 = 2,
+    Eip1559 = 2_isize,
     /// Shard Blob Transactions - EIP-4844
-    Eip4844 = 3,
+    Eip4844 = 3_isize,
     /// EOA Contract Code Transactions - EIP-7702
-    Eip7702 = 4,
+    Eip7702 = 4_isize,
     /// Optimism Deposit transaction.
     #[cfg(feature = "optimism")]
-    Deposit = 126,
+    Deposit = 126_isize,
 }
 
 impl TxType {
@@ -102,19 +101,19 @@ impl TryFrom<u8> for TxType {
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         #[cfg(feature = "optimism")]
         if value == Self::Deposit {
-            return Ok(Self::Deposit);
+            return Ok(Self::Deposit)
         }
 
         if value == Self::Legacy {
-            return Ok(Self::Legacy);
+            return Ok(Self::Legacy)
         } else if value == Self::Eip2930 {
-            return Ok(Self::Eip2930);
+            return Ok(Self::Eip2930)
         } else if value == Self::Eip1559 {
-            return Ok(Self::Eip1559);
+            return Ok(Self::Eip1559)
         } else if value == Self::Eip4844 {
-            return Ok(Self::Eip4844);
+            return Ok(Self::Eip4844)
         } else if value == Self::Eip7702 {
-            return Ok(Self::Eip7702);
+            return Ok(Self::Eip7702)
         }
 
         Err("invalid tx type")

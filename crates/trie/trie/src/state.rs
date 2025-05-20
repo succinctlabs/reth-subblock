@@ -13,7 +13,6 @@ use std::{
 
 /// Representation of in-memory hashed state.
 #[derive(PartialEq, Eq, Clone, Default, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct HashedPostState {
     /// Mapping of hashed address to account info, `None` if destroyed.
     pub accounts: HashMap<B256, Option<Account>>,
@@ -191,16 +190,10 @@ impl HashedPostState {
 
         TriePrefixSetsMut { account_prefix_set, storage_prefix_sets, destroyed_accounts }
     }
-
-    /// Prune wiped slots from hashed post state.
-    pub fn prune_wiped_slots(&mut self) {
-        self.storages.retain(|_, storage| !storage.wiped);
-    }
 }
 
 /// Representation of in-memory hashed storage.
 #[derive(PartialEq, Eq, Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct HashedStorage {
     /// Flag indicating whether the storage was wiped or not.
     pub wiped: bool,
@@ -296,23 +289,6 @@ impl HashedPostStateSorted {
     /// Returns reference to hashed account storages.
     pub const fn account_storages(&self) -> &HashMap<B256, HashedStorageSorted> {
         &self.storages
-    }
-
-    /// Print some fairly deterministic representation of the state.
-    ///
-    /// Used for Yuwen's debugging.
-    pub fn display(&self) -> String {
-        let mut s = String::new();
-        s.push_str(&format!("accounts: {:?}\n", self.accounts.accounts));
-        let sorted_storages = &self
-            .storages
-            .iter()
-            .collect::<Vec<_>>()
-            .into_iter()
-            .sorted_by_key(|entry| *entry.0)
-            .collect::<Vec<_>>();
-        s.push_str(&format!("storages: {:?}", sorted_storages));
-        s
     }
 }
 
