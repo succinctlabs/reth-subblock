@@ -1,7 +1,7 @@
 use reth_chainspec::{ChainSpec, EthereumHardforks};
 use reth_consensus::ConsensusError;
 use reth_primitives::{
-    gas_spent_by_transactions, BlockWithSenders, Bloom, GotExpected, Header, Receipt, Request, B256,
+    gas_spent_by_transactions, BlockWithSenders, Bloom, GotExpected, Receipt, Request, B256, Header
 };
 
 /// Validate a block with regard to execution results:
@@ -21,7 +21,7 @@ pub fn validate_block_post_execution(
         return Err(ConsensusError::BlockGasUsed {
             gas: GotExpected { got: cumulative_gas_used, expected: block.gas_used },
             gas_spent_by_tx: gas_spent_by_transactions(receipts),
-        });
+        })
     }
 
     // Before Byzantium, receipts contained state root that would mean that expensive
@@ -33,14 +33,14 @@ pub fn validate_block_post_execution(
             verify_receipts(block.header.receipts_root, block.header.logs_bloom, receipts)
         {
             tracing::debug!(%error, ?receipts, "receipts verification failed");
-            return Err(error);
+            return Err(error)
         }
     }
 
     // Validate that the header requests root matches the calculated requests root
     if chain_spec.is_prague_active_at_timestamp(block.timestamp) {
         let Some(header_requests_root) = block.header.requests_root else {
-            return Err(ConsensusError::RequestsRootMissing);
+            return Err(ConsensusError::RequestsRootMissing)
         };
         let requests_root = reth_primitives::proofs::calculate_requests_root(requests);
         if requests_root != header_requests_root {
@@ -109,9 +109,7 @@ fn verify_receipts(
 ) -> Result<(), ConsensusError> {
     // Calculate receipts root.
     let receipts_with_bloom = receipts.iter().map(Receipt::with_bloom_ref).collect::<Vec<_>>();
-    println!("cycle-tracker-start: verify_receipts");
     let receipts_root = reth_primitives::proofs::calculate_receipt_root_ref(&receipts_with_bloom);
-    println!("cycle-tracker-end: verify_receipts");
 
     // Calculate header logs bloom.
     let logs_bloom = receipts_with_bloom.iter().fold(Bloom::ZERO, |bloom, r| bloom | r.bloom);
@@ -137,13 +135,13 @@ fn compare_receipts_root_and_logs_bloom(
     if calculated_receipts_root != expected_receipts_root {
         return Err(ConsensusError::BodyReceiptRootDiff(
             GotExpected { got: calculated_receipts_root, expected: expected_receipts_root }.into(),
-        ));
+        ))
     }
 
     if calculated_logs_bloom != expected_logs_bloom {
         return Err(ConsensusError::BodyBloomLogDiff(
             GotExpected { got: calculated_logs_bloom, expected: expected_logs_bloom }.into(),
-        ));
+        ))
     }
 
     Ok(())
