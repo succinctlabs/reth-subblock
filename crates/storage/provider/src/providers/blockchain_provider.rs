@@ -573,14 +573,28 @@ where
                 if let Some(block_state) = self.canonical_in_memory_state.state_by_hash(hash) {
                     let block = block_state.block().block().clone();
                     let senders = block_state.block().senders().clone();
-                    return Ok(Some(BlockWithSenders { block: block.unseal(), senders }));
+                    return Ok(Some(BlockWithSenders {
+                        block: block.unseal(),
+                        senders,
+                        is_first_subblock: true,
+                        is_last_subblock: true,
+                        subblock_gas_limit: 0,
+                        starting_gas_used: 0,
+                    }));
                 }
             }
             BlockHashOrNumber::Number(num) => {
                 if let Some(block_state) = self.canonical_in_memory_state.state_by_number(num) {
                     let block = block_state.block().block().clone();
                     let senders = block_state.block().senders().clone();
-                    return Ok(Some(BlockWithSenders { block: block.unseal(), senders }));
+                    return Ok(Some(BlockWithSenders {
+                        block: block.unseal(),
+                        senders,
+                        is_first_subblock: true,
+                        is_last_subblock: true,
+                        subblock_gas_limit: 0,
+                        starting_gas_used: 0,
+                    }));
                 }
             }
         }
@@ -635,7 +649,14 @@ where
                 self.canonical_in_memory_state.state_by_number(num).map(|block_state| {
                     let block = block_state.block().block().clone();
                     let senders = block_state.block().senders().clone();
-                    BlockWithSenders { block: block.unseal(), senders }
+                    BlockWithSenders {
+                        block: block.unseal(),
+                        senders,
+                        is_first_subblock: true,
+                        is_last_subblock: true,
+                        subblock_gas_limit: 0,
+                        starting_gas_used: 0,
+                    }
                 })
             },
             |_| true,
@@ -2361,6 +2382,10 @@ mod tests {
             .map(|sealed_block| BlockWithSenders {
                 block: sealed_block.clone().unseal(),
                 senders: sealed_block.senders().unwrap(),
+                is_first_subblock: true,
+                is_last_subblock: true,
+                subblock_gas_limit: 0,
+                starting_gas_used: 0,
             })
             .collect::<Vec<_>>();
 
@@ -2400,6 +2425,10 @@ mod tests {
             .map(|sealed_block| BlockWithSenders {
                 block: sealed_block.clone().unseal(),
                 senders: sealed_block.senders().unwrap(),
+                is_first_subblock: true,
+                is_last_subblock: true,
+                subblock_gas_limit: 0,
+                starting_gas_used: 0,
             })
             .collect::<Vec<_>>();
 
@@ -2439,6 +2468,10 @@ mod tests {
             .map(|sealed_block| BlockWithSenders {
                 block: sealed_block.clone().unseal(),
                 senders: sealed_block.senders().unwrap(),
+                is_first_subblock: true,
+                is_last_subblock: true,
+                subblock_gas_limit: 0,
+                starting_gas_used: 0,
             })
             .collect::<Vec<_>>();
 

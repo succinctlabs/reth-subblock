@@ -1,7 +1,7 @@
 use reth_chainspec::{ChainSpec, EthereumHardforks};
 use reth_consensus::ConsensusError;
 use reth_primitives::{
-    gas_spent_by_transactions, BlockWithSenders, Bloom, GotExpected, Receipt, Request, B256,
+    gas_spent_by_transactions, BlockWithSenders, Bloom, GotExpected, Receipt, Request, B256, Header
 };
 
 /// Validate a block with regard to execution results:
@@ -46,7 +46,54 @@ pub fn validate_block_post_execution(
         if requests_root != header_requests_root {
             return Err(ConsensusError::BodyRequestsRootDiff(
                 GotExpected::new(requests_root, header_requests_root).into(),
-            ))
+            ));
+        }
+    }
+
+    Ok(())
+}
+
+/// Validate a block with regard to execution results:
+///
+/// - Compares the receipts root in the block header to the block body
+/// - Compares the gas used in the block header to the actual gas usage after execution
+pub fn validate_subblock_post_execution(
+    header: &Header,
+    chain_spec: &ChainSpec,
+    receipts: &[Receipt],
+    requests: &[Request],
+) -> Result<(), ConsensusError> {
+    // Check if gas used matches the value set in header.
+    let cumulative_gas_used =
+        receipts.last().map(|receipt| receipt.cumulative_gas_used).unwrap_or(0);
+    if header.gas_used != cumulative_gas_used {
+        return Err(ConsensusError::BlockGasUsed {
+            gas: GotExpected { got: cumulative_gas_used, expected: header.gas_used },
+            gas_spent_by_tx: gas_spent_by_transactions(receipts),
+        });
+    }
+
+    // Before Byzantium, receipts contained state root that would mean that expensive
+    // operation as hashing that is required for state root got calculated in every
+    // transaction This was replaced with is_success flag.
+    // See more about EIP here: https://eips.ethereum.org/EIPS/eip-658
+    if chain_spec.is_byzantium_active_at_block(header.number) {
+        if let Err(error) = verify_receipts(header.receipts_root, header.logs_bloom, receipts) {
+            tracing::debug!(%error, ?receipts, "receipts verification failed");
+            return Err(error);
+        }
+    }
+
+    // Validate that the header requests root matches the calculated requests root
+    if chain_spec.is_prague_active_at_timestamp(header.timestamp) {
+        let Some(header_requests_root) = header.requests_root else {
+            return Err(ConsensusError::RequestsRootMissing);
+        };
+        let requests_root = reth_primitives::proofs::calculate_requests_root(requests);
+        if requests_root != header_requests_root {
+            return Err(ConsensusError::BodyRequestsRootDiff(
+                GotExpected::new(requests_root, header_requests_root).into(),
+            ));
         }
     }
 

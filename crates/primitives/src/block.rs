@@ -115,7 +115,14 @@ impl Block {
             senders
         };
 
-        Ok(BlockWithSenders { block: self, senders })
+        Ok(BlockWithSenders {
+            block: self,
+            senders,
+            is_first_subblock: true,
+            is_last_subblock: true,
+            subblock_gas_limit: 0,
+            starting_gas_used: 0,
+        })
     }
 
     /// **Expensive**. Transform into a [`BlockWithSenders`] by recovering senders in the contained
@@ -124,7 +131,14 @@ impl Block {
     /// Returns `None` if a transaction is invalid.
     pub fn with_recovered_senders(self) -> Option<BlockWithSenders> {
         let senders = self.senders()?;
-        Some(BlockWithSenders { block: self, senders })
+        Some(BlockWithSenders {
+            block: self,
+            senders,
+            is_first_subblock: true,
+            is_last_subblock: true,
+            subblock_gas_limit: 0,
+            starting_gas_used: 0,
+        })
     }
 
     /// Returns whether or not the block contains any blob transactions.
@@ -207,12 +221,29 @@ pub struct BlockWithSenders {
     pub block: Block,
     /// List of senders that match the transactions in the block
     pub senders: Vec<Address>,
+    /// Whether or not to preprocess the block.
+    pub is_first_subblock: bool,
+    /// Whether or not to postprocess the block.
+    pub is_last_subblock: bool,
+    /// The gas limit for the subblock. If zero, no limit is enforced.
+    ///
+    /// The RSP host executor uses this to split up the subblocks. The RSP client executor does not.
+    pub subblock_gas_limit: u64,
+    /// The gas used in the previous subblocks.
+    pub starting_gas_used: u64,
 }
 
 impl BlockWithSenders {
     /// New block with senders. Return none if len of tx and senders does not match
     pub fn new(block: Block, senders: Vec<Address>) -> Option<Self> {
-        (block.body.len() == senders.len()).then_some(Self { block, senders })
+        (block.body.len() == senders.len()).then_some(Self {
+            block,
+            senders,
+            is_first_subblock: true,
+            is_last_subblock: true,
+            subblock_gas_limit: 0,
+            starting_gas_used: 0,
+        })
     }
 
     /// Seal the block with a known hash.
@@ -220,7 +251,7 @@ impl BlockWithSenders {
     /// WARNING: This method does not perform validation whether the hash is correct.
     #[inline]
     pub fn seal(self, hash: B256) -> SealedBlockWithSenders {
-        let Self { block, senders } = self;
+        let Self { block, senders, .. } = self;
         SealedBlockWithSenders { block: block.seal(hash), senders }
     }
 
@@ -406,7 +437,7 @@ impl SealedBlock {
             let Some(senders) =
                 TransactionSigned::recover_signers_unchecked(&self.body, self.body.len())
             else {
-                return Err(self)
+                return Err(self);
             };
             senders
         };
@@ -516,7 +547,14 @@ impl SealedBlockWithSenders {
     #[inline]
     pub fn unseal(self) -> BlockWithSenders {
         let Self { block, senders } = self;
-        BlockWithSenders { block: block.unseal(), senders }
+        BlockWithSenders {
+            block: block.unseal(),
+            senders,
+            is_first_subblock: true,
+            is_last_subblock: true,
+            subblock_gas_limit: 0,
+            starting_gas_used: 0,
+        }
     }
 
     /// Returns an iterator over all transactions in the block.
@@ -810,7 +848,14 @@ mod tests {
         assert_eq!(BlockWithSenders::new(block.clone(), vec![]), None);
         assert_eq!(
             BlockWithSenders::new(block.clone(), vec![sender]),
-            Some(BlockWithSenders { block: block.clone(), senders: vec![sender] })
+            Some(BlockWithSenders {
+                block: block.clone(),
+                senders: vec![sender],
+                is_first_subblock: true,
+                is_last_subblock: true,
+                subblock_gas_limit: 0,
+                starting_gas_used: 0,
+            })
         );
         let sealed = block.seal_slow();
         assert_eq!(SealedBlockWithSenders::new(sealed.clone(), vec![]), None);
